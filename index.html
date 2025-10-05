@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Motrac • High Design Template</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0d10;
+      --bg-2:#0f1318;
+      --gloss:#10151d;
+      --panel:#12161d;
+      --panel-2:#171c24;
+      --stroke:rgba(255,255,255,.08);
+      --stroke-2:rgba(255,255,255,.12);
+      --text:#e9eef5;
+      --muted:#a7b1bc;
+      --accent:#e11d2e;  /* Linde rood */
+      --accent-2:#8c0f1b;
+      --ok:#17c964;
+      --warn:#f5a524;
+      --danger:#f31260;
+      --chip:#1d2330;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(225,29,46,.10), transparent 60%),
+        radial-gradient(1200px 600px at 85% 110%, rgba(225,29,46,.10), transparent 60%),
+        linear-gradient(180deg,#0b0d10 0%, #0e1217 70%);
+    }
+
+    /* Layout */
+    .app{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: 64px 1fr;
+      grid-template-areas:
+        "nav nav"
+        "side main";
+      min-height:100vh;
+    }
+
+    /* Top Nav */
+    .nav{
+      grid-area:nav;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 18px;
+      background:rgba(255,255,255,.02);
+      border-bottom:1px solid var(--stroke);
+      backdrop-filter: blur(8px);
+      position:sticky; top:0; z-index:50;
+    }
+    .brand{
+      display:flex; gap:12px; align-items:center;
+    }
+    .brand .logo{
+      width:40px;height:40px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),#7a0b13);
+      display:grid;place-items:center;font-weight:800;
+      box-shadow: var(--shadow);
+    }
+    .brand .title{font-weight:700; letter-spacing:.2px}
+    .nav .actions{display:flex; gap:8px}
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding:10px 14px; border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:white; font-weight:600;
+      box-shadow: var(--shadow);
+    }
+    .btn.secondary{background:#121720;border:1px solid var(--stroke)}
+    .btn.ghost{background:transparent;border:1px dashed var(--stroke);color:var(--text)}
+    .btn.small{padding:8px 10px;font-size:12px}
+
+    /* Sidebar */
+    .side{
+      grid-area:side;
+      padding:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+      border-right:1px solid var(--stroke);
+      position:sticky; top:64px; height:calc(100vh - 64px);
+      overflow:auto;
+    }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding:14px;
+      margin-bottom:14px;
+      box-shadow: var(--shadow);
+    }
+    .panel h3{margin:0 0 10px; font-size:14px; color:#eaeef5; letter-spacing:.3px}
+    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 8px}
+    input,select{
+      width:100%; padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--stroke);
+      background:var(--bg-2); color:var(--text);
+      outline:none;
+    }
+    input:focus,select:focus{border-color:var(--accent)}
+
+    .chips{display:flex; flex-wrap:wrap; gap:8px}
+    .chip{
+      background:var(--chip); border:1px solid var(--stroke);
+      padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted);
+      cursor:pointer;
+    }
+
+    /* Main */
+    .main{
+      grid-area:main;
+      padding:18px;
+      overflow:auto;
+    }
+
+    /* Hero */
+    .hero{
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:18px; align-items:stretch;
+      margin-bottom:18px;
+    }
+    .hero .card{
+      background:linear-gradient(180deg,var(--panel-2),var(--panel));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding:18px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero .card::after{
+      content:"";
+      position:absolute; inset:-40% -10% auto auto;
+      width:50%; height:200%;
+      background: radial-gradient(closest-side, rgba(225,29,46,.18), transparent 60%);
+      transform: rotate(-18deg);
+      pointer-events:none;
+    }
+    .hero h1{margin:0 0 8px; font-size:24px}
+    .hero p{margin:0; color:var(--muted)}
+    .cta-row{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap}
+
+    /* KPIs */
+    .kpis{
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;
+    }
+    .kpi{
+      background:var(--panel);
+      border:1px solid var(--stroke);
+      border-radius:14px; padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .kpi .v{font-size:22px; font-weight:800}
+    .kpi small{display:block; color:var(--muted)}
+    .kpi.ok .v{color:var(--ok)}
+    .kpi.warn .v{color:var(--warn)}
+    .kpi.danger .v{color:var(--danger)}
+
+    /* Cards grid */
+    .grid{
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;
+      margin-top:16px;
+    }
+    .card{
+      background:linear-gradient(180deg,#141a22,#11161d);
+      border:1px solid var(--stroke-2);
+      border-radius:14px; padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .card .top{display:flex; gap:8px; align-items:center; margin-bottom:6px}
+    .badge{
+      font-size:11px; border-radius:20px; padding:4px 8px;
+      background:#202633; border:1px solid var(--stroke);
+      color:#c9d1dc;
+    }
+    .badge.prio{background:#241317;border-color:#4b191f}
+    .badge.skill{background:#112127;border-color:#19343f}
+    .badge.hours{background:#1c1b10;border-color:#37351d}
+    .card h4{margin:6px 0 8px}
+    .card .sub{color:var(--muted); font-size:12px}
+    .card .row{display:flex; justify-content:space-between; align-items:center; margin-top:10px}
+    .card .row .btn{width:auto; padding:8px 10px}
+
+    /* Tabs */
+    .tabs{display:flex; gap:8px; margin:16px 0 8px}
+    .tab{
+      padding:8px 10px; border-radius:10px;
+      background:#121720; border:1px solid var(--stroke);
+      cursor:pointer; user-select:none;
+    }
+    .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;border:0}
+
+    /* Table */
+    .table-wrap{
+      margin-top:16px; background:var(--panel); border:1px solid var(--stroke);
+      border-radius:14px; overflow:auto; box-shadow: var(--shadow);
+    }
+    table{width:100%; border-collapse:collapse; min-width:760px}
+    thead th{
+      position:sticky; top:0;
+      background:#121720; color:#dbe3ee;
+      text-align:left; font-size:12px; letter-spacing:.2px;
+      border-bottom:1px solid var(--stroke);
+      padding:10px;
+    }
+    tbody td{
+      border-bottom:1px solid var(--stroke); padding:10px; font-size:13px;
+    }
+    tbody tr:hover{background:#131a24}
+
+    /* Drawer / Modal */
+    .drawer{
+      position:fixed; inset:auto 0 0 auto; width:420px; height:100%;
+      background:var(--panel-2); border-left:1px solid var(--stroke);
+      box-shadow: -20px 0 50px rgba(0,0,0,.35);
+      transform: translateX(110%); transition: transform .25s ease;
+      z-index:70; padding:16px;
+    }
+    .drawer.open{transform: translateX(0)}
+    .drawer header{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
+    .drawer h3{margin:0}
+    .drawer .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .drawer .form-grid > label{margin-top:0}
+    .drawer .actions{display:flex; gap:10px; margin-top:12px}
+
+    .modal{
+      position:fixed; inset:0; display:none; place-items:center;
+      background:rgba(0,0,0,.55); z-index:80;
+    }
+    .modal .box{
+      width:min(680px, 96vw); background:var(--panel); border:1px solid var(--stroke);
+      border-radius:16px; padding:16px; box-shadow: var(--shadow);
+    }
+    .modal.show{display:grid}
+
+    /* Toast */
+    .toast{
+      position:fixed; right:16px; bottom:16px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#fff; padding:10px 14px; border-radius:12px; box-shadow: var(--shadow);
+      opacity:0; transform: translateY(8px); transition:.25s ease; z-index:90;
+    }
+    .toast.show{opacity:1; transform:none}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .app{grid-template-columns:1fr; grid-template-rows:64px auto auto}
+      .side{position:relative; top:0; height:auto; border-right:none; order:2}
+      .main{order:3}
+      .hero{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Topbar -->
+    <nav class="nav">
+      <div class="brand">
+        <div class="logo">MT</div>
+        <div class="title">Capaciteitsplanner • Template</div>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" onclick="openModal('about')">Over</button>
+        <button class="btn" onclick="openDrawer()">Nieuwe taak</button>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="side">
+      <div class="panel">
+        <h3>Filters</h3>
+        <label>Vestiging
+          <select id="f-workshop"></select>
+        </label>
+        <label>Week (maandag)
+          <input type="date" id="f-week">
+        </label>
+        <label>Skill
+          <input type="text" id="f-skill" placeholder="bv. 386, 1252, Diagnose">
+        </label>
+        <div class="chips" id="chips"></div>
+        <button class="btn small ghost" id="btn-reset">Reset filters</button>
+      </div>
+
+      <div class="panel">
+        <h3>Status</h3>
+        <div class="kpis">
+          <div class="kpi"><span class="v" id="kpi-cap">–</span><small>Beschikbare uren</small></div>
+          <div class="kpi"><span class="v" id="kpi-load">–</span><small>Ingepland</small></div>
+          <div class="kpi"><span class="v" id="kpi-util">–</span><small>Benutting</small></div>
+          <div class="kpi"><span class="v" id="kpi-backlog">–</span><small>Backlog</small></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Acties</h3>
+        <button class="btn small" id="btn-export">Export</button>
+        <button class="btn small secondary" id="btn-import">Import</button>
+        <input id="file" type="file" accept=".json,.csv,.xlsx" hidden />
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="card">
+          <h1>Plan slim. Snel. Visueel.</h1>
+          <p>Strakke, high-design interface in lijn met je MotracTransport-stijl. Filter, plan en analyseer zonder gedoe.</p>
+          <div class="cta-row">
+            <button class="btn" onclick="setTab('board')">Board</button>
+            <button class="btn secondary" onclick="setTab('table')">Tabel</button>
+            <button class="btn ghost" onclick="setTab('insights')">Insights</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="kpis" style="grid-template-columns:repeat(2,1fr);gap:12px">
+            <div class="kpi ok"><span class="v" id="kpi-ok">98%</span><small>Datakwaliteit</small></div>
+            <div class="kpi warn"><span class="v" id="kpi-sla">12</span><small>SLA’s risicovol</small></div>
+            <div class="kpi"><span class="v" id="kpi-open">43</span><small>Open taken</small></div>
+            <div class="kpi danger"><span class="v" id="kpi-late">7</span><small>Te laat</small></div>
+          </div>
+          <div class="cta-row">
+            <button class="btn small" onclick="toast('Auto-planning (demo) klaar')">Auto-planning</button>
+            <button class="btn small secondary" onclick="toast('Geëxporteerd')">Export CSV</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="board" onclick="setTab('board')">Board</div>
+        <div class="tab" data-tab="table" onclick="setTab('table')">Tabel</div>
+        <div class="tab" data-tab="insights" onclick="setTab('insights')">Insights</div>
+      </div>
+
+      <!-- Board -->
+      <section id="view-board">
+        <div class="grid" id="board-grid">
+          <!-- Cards komen hier -->
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section id="view-table" style="display:none">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th><th>Taak</th><th>Vestiging</th><th>Skill</th><th>Uren</th><th>Deadline</th><th>Prioriteit</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Insights -->
+      <section id="view-insights" style="display:none">
+        <div class="grid">
+          <div class="card">
+            <div class="top">
+              <span class="badge">Weekbalans</span>
+              <span class="badge hours">320h cap</span>
+            </div>
+            <h4>Capaciteit vs. Werkdruk</h4>
+            <p class="sub">Snelle indicatie per vestiging/week. Kleur op basis van overschrijding.</p>
+            <div class="row"><span class="badge prio">Hoog risico</span><button class="btn small" onclick="toast('Insight bijgewerkt')">V verversen</button></div>
+          </div>
+          <div class="card">
+            <div class="top"><span class="badge">SLA’s</span></div>
+            <h4>Naderende deadlines</h4>
+            <p class="sub">Taken binnen 72 uur met norm &gt; 8 uur.</p>
+            <div class="row"><span class="badge skill">Diagnose</span><button class="btn small secondary">Open lijst</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Drawer (Nieuwe taak) -->
+  <aside class="drawer" id="drawer">
+    <header>
+      <h3>Nieuwe taak</h3>
+      <button class="btn small secondary" onclick="closeDrawer()">Sluiten</button>
+    </header>
+    <div class="form-grid">
+      <label>Titel<input id="t-title" placeholder="bv. Groene Stroom 386-setup"></label>
+      <label>Vestiging
+        <select id="t-ws"></select>
+      </label>
+      <label>Skill<input id="t-skill" placeholder="bv. 386, 1252, Diagnose"></label>
+      <label>Uren<input id="t-hours" type="number" min="1" step="1" value="8"></label>
+      <label>Deadline<input id="t-due" type="date"></label>
+      <label>Prioriteit
+        <select id="t-prio">
+          <option>Normaal</option>
+          <option>Hoog</option>
+          <option>Laag</option>
+        </select>
+      </label>
+      <label style="grid-column:1/-1">Status
+        <select id="t-status">
+          <option>Open</option>
+          <option>In uitvoering</option>
+          <option>Gereed</option>
+          <option>Geblokkeerd</option>
+        </select>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="saveTask()">Opslaan</button>
+      <button class="btn secondary" onclick="clearTask()">Leegmaken</button>
+    </div>
+  </aside>
+
+  <!-- Modal Over -->
+  <div class="modal" id="modal-about" onclick="if(event.target===this) closeModal('about')">
+    <div class="box">
+      <h3 style="margin-top:0">Over deze template</h3>
+      <p>High-design HTML in de stijl van je MotracTransport-site. Donker thema, rood-accenten, glasachtige panelen, micro-interacties.</p>
+      <div style="display:flex; gap:10px; margin-top:8px">
+        <button class="btn small" onclick="closeModal('about')">OK</button>
+        <button class="btn small secondary" onclick="toast('Documentatie geopend')">Documentatie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Gereed</div>
+
+  <script>
+    // ----------------------------
+    // DATA DEMO (vervang dit door fetch/Supabase)
+    // ----------------------------
+    const state = {
+      workshops: [
+        {id:1, name:"Almere"},
+        {id:2, name:"Venlo"},
+        {id:3, name:"Zwijndrecht"},
+      ],
+      tasks: [
+        {id:"O-10001", title:"Groene Stroom: 386-setup", workshop_id:1, skill:"386", hours:12, due_date:"2025-10-10", priority:"Hoog", status:"Open"},
+        {id:"O-10002", title:"QC Reachtruck 1252", workshop_id:1, skill:"1252", hours:8,  due_date:"2025-10-14", priority:"Normaal", status:"Open"},
+        {id:"O-10003", title:"Batterij wissel",        workshop_id:2, skill:"Elektrisch", hours:6, due_date:"2025-10-11", priority:"Hoog", status:"Open"},
+        {id:"O-10004", title:"Demovloot klaarzetten",  workshop_id:3, skill:"Diagnose",   hours:10, due_date:"2025-10-09", priority:"Laag", status:"In uitvoering"},
+      ],
+      filters:{ workshop_id:"", week:"", skill:"" },
+      tab:"board"
+    };
+
+    // Init
+    document.addEventListener("DOMContentLoaded", () => {
+      fillFilters();
+      renderAll();
+
+      document.getElementById("btn-reset").addEventListener("click", () => {
+        state.filters = {workshop_id:"", week:"", skill:""};
+        document.getElementById("f-workshop").value = "";
+        document.getElementById("f-week").value = "";
+        document.getElementById("f-skill").value = "";
+        renderAll();
+      });
+
+      document.getElementById("btn-export").addEventListener("click", exportCSV);
+      document.getElementById("btn-import").addEventListener("click", ()=> document.getElementById("file").click());
+      document.getElementById("file").addEventListener("change", handleImport);
+    });
+
+    function fillFilters(){
+      const sel = document.getElementById("f-workshop");
+      sel.innerHTML = '<option value="">Alle vestigingen</option>' + state.workshops.map(w=>`<option value="${w.id}">${w.name}</option>`).join('');
+      sel.addEventListener("change", e => { state.filters.workshop_id = e.target.value; renderAll(); });
+
+      document.getElementById("f-week").addEventListener("change", e => { state.filters.week = e.target.value; renderAll(); });
+      document.getElementById("f-skill").addEventListener("input", e => { state.filters.skill = e.target.value.toLowerCase(); renderAll(); });
+
+      // Drawer select
+      const tsel = document.getElementById("t-ws");
+      tsel.innerHTML = state.workshops.map(w=>`<option value="${w.id}">${w.name}</option>`).join('');
+    }
+
+    function renderAll(){
+      renderChips();
+      renderKPIs();
+      renderBoard();
+      renderTable();
+      setTab(state.tab);
+    }
+
+    function filteredTasks(){
+      return state.tasks.filter(t=>{
+        if(state.filters.workshop_id && Number(state.filters.workshop_id)!==t.workshop_id) return false;
+        if(state.filters.skill && !(t.skill||"").toLowerCase().includes(state.filters.skill)) return false;
+        // week filter kan hier uitbreiden op due_date
+        return true;
+      }).sort((a,b)=>prioRank(a.priority)-prioRank(b.priority));
+    }
+    function prioRank(p){ return p==="Hoog"?0:p==="Normaal"?1:2; }
+
+    function renderChips(){
+      const el = document.getElementById("chips");
+      const chips = [];
+      if(state.filters.workshop_id){
+        const w = state.workshops.find(x=>x.id===Number(state.filters.workshop_id));
+        chips.push(chip(`Vestiging: ${w?.name||"?"}`, ()=>{ state.filters.workshop_id=""; document.getElementById("f-workshop").value=""; renderAll(); }));
+      }
+      if(state.filters.week){
+        chips.push(chip(`Week: ${state.filters.week}`, ()=>{ state.filters.week=""; document.getElementById("f-week").value=""; renderAll(); }));
+      }
+      if(state.filters.skill){
+        chips.push(chip(`Skill: ${state.filters.skill}`, ()=>{ state.filters.skill=""; document.getElementById("f-skill").value=""; renderAll(); }));
+      }
+      el.innerHTML = ""; chips.forEach(c=>el.appendChild(c));
+    }
+    function chip(text,onClose){
+      const d=document.createElement("div"); d.className="chip"; d.textContent=text + " ✕";
+      d.addEventListener("click", onClose); return d;
+    }
+
+    function renderKPIs(){
+      const tasks = filteredTasks();
+      const cap = 320; // demo
+      const planned = Math.round(tasks.reduce((s,t)=>s+(t.hours||0),0)*0.55);
+      const util = cap>0? Math.round(100*planned/cap) : 0;
+      const backlog = Math.max(0, tasks.reduce((s,t)=>s+(t.hours||0),0) - cap);
+
+      setText("kpi-cap", cap);
+      setText("kpi-load", planned);
+      setText("kpi-util", util + "%");
+      setText("kpi-backlog", backlog);
+    }
+
+    function renderBoard(){
+      const container = document.getElementById("board-grid");
+      container.innerHTML = "";
+      filteredTasks().forEach(t=>{
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="top">
+            <span class="badge prio">${t.priority}</span>
+            <span class="badge skill">${t.skill||"—"}</span>
+            <span class="badge hours">${t.hours||0}h</span>
+          </div>
+          <h4>${escapeHtml(t.title)}</h4>
+          <div class="sub">Due ${t.due_date||"—"} • ${workshopName(t.workshop_id)}</div>
+          <div class="row">
+            <span class="badge">${t.status||"Open"}</span>
+            <div>
+              <button class="btn small secondary" onclick="editTask('${t.id}')">Bewerk</button>
+              <button class="btn small" onclick="toast('Gepland op beste lane (demo)')">Plan</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderTable(){
+      const tb = document.getElementById("tbody");
+      tb.innerHTML = filteredTasks().map(t=>`
+        <tr>
+          <td>${t.id}</td>
+          <td>${escapeHtml(t.title)}</td>
+          <td>${workshopName(t.workshop_id)}</td>
+          <td>${t.skill||""}</td>
+          <td>${t.hours||0}</td>
+          <td>${t.due_date||""}</td>
+          <td>${t.priority||""}</td>
+          <td>${t.status||""}</td>
+        </tr>
+      `).join('');
+    }
+
+    function setTab(tab){
+      state.tab = tab;
+      document.querySelectorAll(".tab").forEach(el => el.classList.toggle("active", el.dataset.tab===tab));
+      document.getElementById("view-board").style.display = tab==="board" ? "block" : "none";
+      document.getElementById("view-table").style.display = tab==="table" ? "block" : "none";
+      document.getElementById("view-insights").style.display = tab==="insights" ? "block" : "none";
+    }
+
+    function workshopName(id){ return (state.workshops.find(w=>w.id===id)||{}).name||"?"; }
+    function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = val; }
+    function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+    // Drawer / Modal / Toast
+    function openDrawer(){ document.getElementById("drawer").classList.add("open"); }
+    function closeDrawer(){ document.getElementById("drawer").classList.remove("open"); }
+    function openModal(id){ document.getElementById("modal-"+id).classList.add("show"); }
+    function closeModal(id){ document.getElementById("modal-"+id).classList.remove("show"); }
+    function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 1600); }
+
+    // CRUD (demo)
+    function saveTask(){
+      const t = {
+        id: "O-" + Math.floor(10000 + Math.random()*90000),
+        title: document.getElementById("t-title").value.trim() || "Nieuwe taak",
+        workshop_id: Number(document.getElementById("t-ws").value||1),
+        skill: document.getElementById("t-skill").value.trim(),
+        hours: Number(document.getElementById("t-hours").value||0),
+        due_date: document.getElementById("t-due").value || "",
+        priority: document.getElementById("t-prio").value || "Normaal",
+        status: document.getElementById("t-status").value || "Open",
+      };
+      state.tasks.unshift(t);
+      renderAll();
+      closeDrawer();
+      toast("Taak opgeslagen");
+      clearTask();
+    }
+    function clearTask(){
+      ["t-title","t-skill","t-hours","t-due"].forEach(id=> document.getElementById(id).value = "");
+      document.getElementById("t-prio").value = "Normaal";
+      document.getElementById("t-status").value = "Open";
+      document.getElementById("t-ws").value = state.workshops[0].id;
+    }
+    function editTask(id){
+      const t = state.tasks.find(x=>x.id===id); if(!t) return;
+      openDrawer();
+      document.getElementById("t-title").value = t.title;
+      document.getElementById("t-ws").value = t.workshop_id;
+      document.getElementById("t-skill").value = t.skill||"";
+      document.getElementById("t-hours").value = t.hours||0;
+      document.getElementById("t-due").value = t.due_date||"";
+      document.getElementById("t-prio").value = t.priority||"Normaal";
+      document.getElementById("t-status").value = t.status||"Open";
+    }
+
+    // Export / Import
+    function exportCSV(){
+      const rows = [["Order","Titel","Vestiging","Skill","Uren","Deadline","Prioriteit","Status"]];
+      filteredTasks().forEach(t=> rows.push([t.id,t.title,workshopName(t.workshop_id),t.skill||"",t.hours||0,t.due_date||"",t.priority||"",t.status||""]));
+      const csv = rows.map(r => r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], {type:"text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href=url; a.download="planning_export.csv"; a.click();
+      URL.revokeObjectURL(url);
+      toast("Export gereed");
+    }
+
+    async function handleImport(evt){
+      const file = evt.target.files[0]; if(!file) return;
+      const text = await file.text();
+      try{
+        const data = JSON.parse(text);
+        if(Array.isArray(data)){
+          state.tasks = data; renderAll(); toast("JSON geïmporteerd"); return;
+        }
+      }catch(_){}
+      toast("Ondersteund nu JSON array (taken). CSV/XLSX mapping kan worden toegevoegd.");
+    }
+  </script>
+</body>
+</html>
