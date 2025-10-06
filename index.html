@@ -197,6 +197,44 @@
     .card .row{display:flex; justify-content:space-between; align-items:center; margin-top:10px}
     .card .row .btn{width:auto; padding:8px 10px}
 
+    /* Capacity chart */
+    .capacity-chart{
+      margin:14px 0 10px;
+      background:var(--panel-2);
+      border:1px solid var(--stroke);
+      border-radius:12px;
+      padding:12px;
+      min-height:220px;
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      position:relative;
+    }
+    .capacity-chart svg{width:100%; height:auto; display:block; flex:1 1 auto; aspect-ratio:860/280;}
+    .capacity-chart__empty{font-size:13px; color:var(--muted); text-align:center; margin:auto;}
+    .capacity-chart__legend{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+    .capacity-chart__grid{stroke:var(--stroke); stroke-width:1; opacity:.28;}
+    .capacity-chart__tick{fill:var(--muted); font-size:11px; letter-spacing:.2px;}
+    .capacity-chart__dot{stroke:var(--panel-2); stroke-width:1;}
+    .capacity-chart__dot.capacity{fill:var(--accent);}
+    .capacity-chart__dot.workload{fill:var(--ok);}
+    .legend-dot{
+      display:inline-flex;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      margin-right:6px;
+    }
+    .legend-dot--capacity{background:var(--accent);}
+    .legend-dot--workload{background:var(--ok);}
+
     /* Tabs */
     .tabs{display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap}
     .tab{
@@ -715,6 +753,13 @@
             </div>
             <h4>Capaciteit vs. Werkdruk</h4>
             <p class="sub">Snelle indicatie per vestiging/week. Kleur op basis van overschrijding.</p>
+            <div class="capacity-chart" id="capacity-chart">
+              <div class="capacity-chart__empty">Grafiek wordt geladen…</div>
+            </div>
+            <div class="capacity-chart__legend" aria-hidden="true">
+              <span class="legend-dot legend-dot--capacity"></span> Capaciteit
+              <span class="legend-dot legend-dot--workload"></span> Werkaanbod
+            </div>
             <div class="row"><span class="badge prio">Hoog risico</span><button class="btn small" onclick="toast('Insight bijgewerkt')">V verversen</button></div>
           </div>
           <div class="card">
@@ -1007,6 +1052,7 @@
       {value:"deeltijd", label:"Deeltijd", code:"DZ"},
     ];
     const DEFAULT_WORKDAY_HOURS = 8;
+    const NUMBER_FORMATTER = new Intl.NumberFormat('nl-NL');
 
     // Init
     document.addEventListener("DOMContentLoaded", () => {
@@ -1139,6 +1185,23 @@
       return filteredTasksCache.value;
     }
 
+    function getTasksForChart(){
+      const filters = state.filters || {};
+      const skillTerm = filters.skill ? filters.skill.trim().toLowerCase() : "";
+      const workshopFilter = filters.workshop_id ? Number(filters.workshop_id) : null;
+      const useWorkshopFilter = Number.isFinite(workshopFilter);
+      const items = [];
+      for(const task of state.tasks){
+        if(useWorkshopFilter && Number(task.workshop_id) !== workshopFilter) continue;
+        if(skillTerm){
+          const skillValue = String(task.skill || "").toLowerCase();
+          if(!skillValue.includes(skillTerm)) continue;
+        }
+        items.push(task);
+      }
+      return items;
+    }
+
     function invalidateFilteredTasks(){
       filteredTasksCache = {signature:null, value:[]};
     }
@@ -1266,9 +1329,40 @@
       }).join('');
     }
 
+    function renderCapacityChart(yearOverride){
+      const host = document.getElementById("capacity-chart");
+      if(!host) return;
+      const year = Number.isFinite(Number(yearOverride)) ? Number(yearOverride) : Number(state.currentLeaveYear) || todayUtc().getUTCFullYear();
+      if(!Number.isFinite(year)){
+        host.innerHTML = `<div class="capacity-chart__empty">Geen data beschikbaar.</div>`;
+        host.removeAttribute("role");
+        host.removeAttribute("aria-label");
+        return;
+      }
+
+      const series = buildWeeklyCapacitySeries(year);
+      if(!series.length){
+        host.innerHTML = `<div class="capacity-chart__empty">Geen data voor ${year}.</div>`;
+        host.setAttribute("role", "img");
+        host.setAttribute("aria-label", `Geen capaciteit of werkaanbod geregistreerd in ${year}.`);
+        return;
+      }
+
+      const maxValue = Math.max(...series.map(item => Math.max(item.capacity, item.workload)));
+      if(!(maxValue > 0)){
+        host.innerHTML = `<div class="capacity-chart__empty">Geen geregistreerde uren voor ${year}.</div>`;
+        host.setAttribute("role", "img");
+        host.setAttribute("aria-label", `Geen geregistreerde uren voor ${year}.`);
+        return;
+      }
+
+      host.innerHTML = buildCapacitySvg(series, maxValue);
+      host.setAttribute("role", "img");
+      host.setAttribute("aria-label", `Capaciteit en werkaanbod per week voor ${year}.`);
+    }
+
     function renderLeaveMatrix(){
       const host = document.getElementById("leave-matrix");
-      if(!host) return;
       const matrix = state.leaveMatrix || {};
       const availableYears = Array.isArray(matrix.years) && matrix.years.length ? [...matrix.years].sort((a,b)=>a-b) : [];
       let year = Number(state.currentLeaveYear);
@@ -1285,6 +1379,10 @@
       if(yearSelect && yearSelect.value !== String(year)){
         yearSelect.value = String(year);
       }
+
+      renderCapacityChart(year);
+
+      if(!host) return;
 
       const days = buildLeaveDays(year);
       const employees = Array.isArray(matrix.employees) ? matrix.employees : [];
@@ -1634,6 +1732,220 @@
       const m = String(date.getUTCMonth()+1).padStart(2,'0');
       const d = String(date.getUTCDate()).padStart(2,'0');
       return `${y}-${m}-${d}`;
+    }
+
+    function buildWeeklyCapacitySeries(year){
+      if(!Number.isFinite(year)) return [];
+      const weekly = new Map();
+      const leaveState = state.leaveMatrix || {};
+      const employees = Array.isArray(leaveState.employees) ? leaveState.employees : [];
+      const totalDailyCapacity = employees.reduce((sum, emp) => sum + workdayHours(emp), 0);
+      const ensureEntry = (isoYear, week) => {
+        const key = `${isoYear}-W${String(week).padStart(2,'0')}`;
+        let entry = weekly.get(key);
+        if(!entry){
+          entry = {week, year: isoYear, capacity:0, workload:0};
+          weekly.set(key, entry);
+        }
+        return entry;
+      };
+
+      const days = buildLeaveDays(year);
+      days.forEach(day => {
+        const entry = ensureEntry(day.isoYear, day.week);
+        if(!day.weekend && totalDailyCapacity > 0){
+          entry.capacity += totalDailyCapacity;
+        }
+        if(employees.length){
+          employees.forEach(emp => {
+            const entries = emp && emp.entries ? emp.entries : null;
+            if(!entries) return;
+            const original = entries[day.date];
+            if(!original) return;
+            const clone = {...original};
+            normaliseLeaveEntry(clone, emp);
+            const hours = Number(clone.hours);
+            if(Number.isFinite(hours) && hours > 0){
+              entry.capacity -= hours;
+            }
+          });
+        }
+      });
+
+      const tasks = getTasksForChart();
+      tasks.forEach(task => {
+        const dueDate = parseISODate(task.due_date);
+        if(!dueDate) return;
+        if(dueDate.getUTCFullYear() !== year) return;
+        const info = isoWeek(dueDate);
+        const entry = ensureEntry(info.year, info.week);
+        const rawHours = Number.isFinite(task.safeHours) ? Number(task.safeHours) : safeHours(task.hours);
+        if(rawHours > 0){
+          entry.workload += rawHours;
+        }
+      });
+
+      const multiplier = chartCapacityMultiplier(totalDailyCapacity);
+      const series = Array.from(weekly.values()).map(item => {
+        const scaledCapacity = Math.max(0, Math.round(Math.max(0, item.capacity) * multiplier * 4) / 4);
+        const workloadValue = Math.max(0, Math.round(Math.max(0, item.workload) * 4) / 4);
+        const baseLabel = `W${String(item.week).padStart(2,'0')}`;
+        const label = item.year === year ? baseLabel : `${baseLabel} (${String(item.year).slice(-2)})`;
+        return {
+          week: item.week,
+          year: item.year,
+          capacity: scaledCapacity,
+          workload: workloadValue,
+          label,
+        };
+      }).sort((a,b) => {
+        if(a.year === b.year) return a.week - b.week;
+        return a.year - b.year;
+      });
+
+      return series;
+    }
+
+    function chartCapacityMultiplier(totalDailyCapacity){
+      const map = state.capacityByWorkshop || {};
+      const configuredTotal = totalCapacity(map) || (Number.isFinite(state.defaultCapacity) ? Number(state.defaultCapacity) : 0);
+      const baselineWeekly = totalDailyCapacity * 5;
+      let baseScale = 1;
+      if(baselineWeekly > 0 && configuredTotal > 0){
+        baseScale = configuredTotal / baselineWeekly;
+      }
+      let share = 1;
+      const workshopFilter = state.filters && state.filters.workshop_id ? Number(state.filters.workshop_id) : NaN;
+      if(Number.isFinite(workshopFilter) && configuredTotal > 0){
+        const value = Number(map[workshopFilter]);
+        if(Number.isFinite(value) && value > 0){
+          share = value / configuredTotal;
+        }
+      }
+      return baseScale * share;
+    }
+
+    function buildCapacitySvg(series, maxValue){
+      const viewWidth = 860;
+      const viewHeight = 280;
+      const padding = {top:18, right:24, bottom:36, left:56};
+      const innerWidth = Math.max(0, viewWidth - padding.left - padding.right);
+      const innerHeight = Math.max(0, viewHeight - padding.top - padding.bottom);
+      const step = series.length > 1 ? innerWidth / (series.length - 1) : 0;
+      const baseY = padding.top + innerHeight;
+      const pointX = index => {
+        if(series.length <= 1){
+          return padding.left + innerWidth / 2;
+        }
+        return padding.left + step * index;
+      };
+      const pointY = value => {
+        if(!(maxValue > 0)) return baseY;
+        const ratio = Math.min(Math.max(value / maxValue, 0), 1);
+        return padding.top + (1 - ratio) * innerHeight;
+      };
+
+      let workloadArea = "";
+      let workloadLine = "";
+      series.forEach((entry, index) => {
+        const x = pointX(index);
+        const y = pointY(entry.workload);
+        if(index === 0){
+          workloadArea = `M ${x} ${y}`;
+          workloadLine = `M ${x} ${y}`;
+        }else{
+          workloadArea += ` L ${x} ${y}`;
+          workloadLine += ` L ${x} ${y}`;
+        }
+      });
+      if(workloadArea){
+        const lastX = pointX(series.length - 1);
+        const firstX = pointX(0);
+        workloadArea += ` L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
+      }
+
+      let capacityLine = "";
+      series.forEach((entry, index) => {
+        const x = pointX(index);
+        const y = pointY(entry.capacity);
+        capacityLine += index === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+      });
+
+      const ticks = buildYTicks(maxValue);
+      const gridLines = ticks.map(tick => {
+        const y = pointY(tick);
+        return `<line x1="${padding.left}" y1="${y}" x2="${padding.left + innerWidth}" y2="${y}" class="capacity-chart__grid" />`;
+      }).join("\n");
+      const yLabels = ticks.map(tick => {
+        const y = pointY(tick);
+        return `<text x="${padding.left - 10}" y="${y + 4}" class="capacity-chart__tick" text-anchor="end">${formatChartNumber(tick)}</text>`;
+      }).join("\n");
+
+      const labelEvery = Math.max(1, Math.round(series.length / 8));
+      const xLabels = series.map((entry, index) => {
+        if(index !== 0 && index !== series.length - 1 && index % labelEvery !== 0) return "";
+        const x = pointX(index);
+        return `<text x="${x}" y="${baseY + 18}" class="capacity-chart__tick" text-anchor="middle">${entry.label}</text>`;
+      }).filter(Boolean).join("\n");
+
+      const markers = series.map((entry, index) => {
+        const x = pointX(index);
+        const workloadY = pointY(entry.workload);
+        const capacityY = pointY(entry.capacity);
+        return `<circle cx="${x}" cy="${workloadY}" r="2.8" class="capacity-chart__dot workload" />\n      <circle cx="${x}" cy="${capacityY}" r="2.8" class="capacity-chart__dot capacity" />`;
+      }).join("\n      ");
+
+      return `<svg viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="chart-workload-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--ok)" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="var(--ok)" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <g>
+${gridLines}
+  </g>
+  <path d="${workloadArea}" fill="url(#chart-workload-fill)" />
+  <path d="${workloadLine}" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+  <path d="${capacityLine}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+  <g>
+${markers}
+  </g>
+  <line x1="${padding.left}" y1="${baseY}" x2="${padding.left + innerWidth}" y2="${baseY}" stroke="var(--stroke)" stroke-width="1" />
+  <g>
+${yLabels}
+${xLabels}
+  </g>
+</svg>`;
+    }
+
+    function buildYTicks(maxValue){
+      if(!(maxValue > 0)) return [];
+      const roughStep = maxValue / 4;
+      const step = niceStep(roughStep);
+      if(!(step > 0)) return [];
+      const ticks = [];
+      for(let value = 0; value <= maxValue + step * 0.5; value += step){
+        ticks.push(Math.round(value));
+      }
+      return [...new Set(ticks)].filter(val => val >= 0).sort((a,b)=>a-b);
+    }
+
+    function niceStep(value){
+      if(!(value > 0)) return 0;
+      const exponent = Math.floor(Math.log10(value));
+      const base = Math.pow(10, exponent);
+      const fraction = value / base;
+      let niceFraction;
+      if(fraction <= 1) niceFraction = 1;
+      else if(fraction <= 2) niceFraction = 2;
+      else if(fraction <= 5) niceFraction = 5;
+      else niceFraction = 10;
+      return niceFraction * base;
+    }
+
+    function formatChartNumber(value){
+      return NUMBER_FORMATTER.format(Math.round(value));
     }
     function scrollLeaveMatrixToCurrentWeeks(container, table){
       const headerRow = table.querySelector("thead tr:nth-child(3)");
