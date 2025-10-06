@@ -457,7 +457,13 @@
         {id:"O-10004", title:"Demovloot klaarzetten",  workshop_id:3, skill:"Diagnose",   hours:10, due_date:"2025-10-09", priority:"Laag", status:"In uitvoering"},
       ],
       filters:{ workshop_id:"", week:"", skill:"" },
-      tab:"board"
+      tab:"board",
+      capacityByWorkshop: {
+        1: 120,
+        2: 110,
+        3: 90,
+      },
+      defaultCapacity: 320,
     };
 
     // Init
@@ -494,18 +500,42 @@
     function renderAll(){
       renderChips();
       renderKPIs();
+      renderHeroStats();
       renderBoard();
       renderTable();
       setTab(state.tab);
     }
 
     function filteredTasks(){
+      const selectedWeek = parseISODate(state.filters.week);
+      const selectedWeekInfo = selectedWeek ? isoWeek(selectedWeek) : null;
       return state.tasks.filter(t=>{
         if(state.filters.workshop_id && Number(state.filters.workshop_id)!==t.workshop_id) return false;
         if(state.filters.skill && !(t.skill||"").toLowerCase().includes(state.filters.skill)) return false;
-        // week filter kan hier uitbreiden op due_date
+        if(selectedWeekInfo){
+          const due = parseISODate(t.due_date);
+          if(!due) return false;
+          const dueWeek = isoWeek(due);
+          if(dueWeek.year !== selectedWeekInfo.year || dueWeek.week !== selectedWeekInfo.week) return false;
+        }
         return true;
-      }).sort((a,b)=>prioRank(a.priority)-prioRank(b.priority));
+      }).sort((a,b)=>{
+        const pr = prioRank(a.priority) - prioRank(b.priority);
+        if(pr !== 0) return pr;
+        const da = parseISODate(a.due_date);
+        const db = parseISODate(b.due_date);
+        if(da && db){
+          if(da < db) return -1;
+          if(da > db) return 1;
+        }else if(da){
+          return -1;
+        }else if(db){
+          return 1;
+        }
+        const diff = safeHours(b.hours) - safeHours(a.hours);
+        if(diff !== 0) return diff;
+        return String(a.title||"").localeCompare(String(b.title||""), "nl", {sensitivity:"base"});
+      });
     }
     function prioRank(p){ return p==="Hoog"?0:p==="Normaal"?1:2; }
 
@@ -517,7 +547,7 @@
         chips.push(chip(`Vestiging: ${w?.name||"?"}`, ()=>{ state.filters.workshop_id=""; document.getElementById("f-workshop").value=""; renderAll(); }));
       }
       if(state.filters.week){
-        chips.push(chip(`Week: ${state.filters.week}`, ()=>{ state.filters.week=""; document.getElementById("f-week").value=""; renderAll(); }));
+        chips.push(chip(`Week: ${formatWeekLabel(state.filters.week)}`, ()=>{ state.filters.week=""; document.getElementById("f-week").value=""; renderAll(); }));
       }
       if(state.filters.skill){
         chips.push(chip(`Skill: ${state.filters.skill}`, ()=>{ state.filters.skill=""; document.getElementById("f-skill").value=""; renderAll(); }));
@@ -531,15 +561,40 @@
 
     function renderKPIs(){
       const tasks = filteredTasks();
-      const cap = 320; // demo
-      const planned = Math.round(tasks.reduce((s,t)=>s+(t.hours||0),0)*0.55);
-      const util = cap>0? Math.round(100*planned/cap) : 0;
-      const backlog = Math.max(0, tasks.reduce((s,t)=>s+(t.hours||0),0) - cap);
+      const capacity = currentCapacity();
+      const totalHours = tasks.reduce((sum,t)=> sum + safeHours(t.hours), 0);
+      const plannedHours = tasks.filter(t=>!isDone(t.status)).reduce((sum,t)=> sum + safeHours(t.hours), 0);
+      const utilisation = capacity>0 ? Math.min(100, Math.round((plannedHours/capacity)*100)) : 0;
+      const backlog = capacity>0 ? Math.max(0, totalHours - capacity) : totalHours;
 
-      setText("kpi-cap", cap);
-      setText("kpi-load", planned);
-      setText("kpi-util", util + "%");
+      setText("kpi-cap", capacity);
+      setText("kpi-load", plannedHours);
+      setText("kpi-util", utilisation + "%");
       setText("kpi-backlog", backlog);
+    }
+
+    function renderHeroStats(){
+      const tasks = filteredTasks();
+      const today = todayUtc();
+      const info = tasks.reduce((acc,t)=>{
+        const due = parseISODate(t.due_date);
+        const done = isDone(t.status);
+        const hasCoreData = Boolean(t.title && due && t.skill);
+        if(hasCoreData) acc.completeData += 1;
+        if(!done) acc.open += 1;
+        if(!done && due){
+          const delta = Math.ceil((due - today)/DAY_MS);
+          if(delta < 0) acc.overdue += 1;
+          if(delta >= 0 && delta <= 7) acc.atRisk += 1;
+        }
+        return acc;
+      }, {open:0, overdue:0, atRisk:0, completeData:0});
+      const quality = tasks.length ? Math.round(Math.min(1, info.completeData / tasks.length)*100) : 100;
+
+      setText("kpi-ok", quality + "%");
+      setText("kpi-sla", info.atRisk);
+      setText("kpi-open", info.open);
+      setText("kpi-late", info.overdue);
     }
 
     function renderBoard(){
@@ -595,6 +650,54 @@
     function workshopName(id){ return (state.workshops.find(w=>w.id===id)||{}).name||"?"; }
     function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = val; }
     function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+    function parseISODate(str){
+      if(!str) return null;
+      const m = String(str).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if(!m) return null;
+      const [_,y,mth,d] = m;
+      const date = new Date(Date.UTC(Number(y), Number(mth)-1, Number(d)));
+      if(Number.isNaN(date.getTime())) return null;
+      if(date.getUTCFullYear()!==Number(y) || date.getUTCMonth()!==Number(mth)-1 || date.getUTCDate()!==Number(d)) return null;
+      return date;
+    }
+    const DAY_MS = 24*60*60*1000;
+    function isoWeek(date){
+      const target = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+      const dayNr = target.getUTCDay() || 7;
+      target.setUTCDate(target.getUTCDate() + 4 - dayNr);
+      const yearStart = new Date(Date.UTC(target.getUTCFullYear(),0,1));
+      const week = Math.ceil((((target - yearStart)/DAY_MS) + 1)/7);
+      return {week, year: target.getUTCFullYear()};
+    }
+    function todayUtc(){
+      const now = new Date();
+      return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    }
+    function safeHours(val){ const num = Number(val); return Number.isFinite(num) && num>0 ? num : 0; }
+    function isDone(status){ return String(status||"").toLowerCase()==="gereed"; }
+    function currentCapacity(){
+      const map = state.capacityByWorkshop||{};
+      const fallback = Number.isFinite(state.defaultCapacity) ? Number(state.defaultCapacity) : 0;
+      if(state.filters.workshop_id){
+        const id = Number(state.filters.workshop_id);
+        if(Number.isFinite(map[id])) return Number(map[id]);
+        const total = totalCapacity(map);
+        return total>0 ? total : fallback;
+      }
+      const total = totalCapacity(map);
+      return total>0 ? total : fallback;
+    }
+    function totalCapacity(map){
+      const values = Object.values(map).map(v=>Number(v)).filter(v=>Number.isFinite(v) && v>0);
+      if(!values.length) return 0;
+      return values.reduce((sum,v)=> sum + v, 0);
+    }
+    function formatWeekLabel(value){
+      const date = parseISODate(value);
+      if(!date) return value;
+      const info = isoWeek(date);
+      return `Week ${String(info.week).padStart(2,'0')} (${value})`;
+    }
 
     // Drawer / Modal / Toast
     function openDrawer(){ document.getElementById("drawer").classList.add("open"); }
