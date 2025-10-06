@@ -23,8 +23,9 @@
       --accent-2:#8c0f1b;
       --ok:#17c964;
       --warn:#f5a524;
-      --danger:#f31260;
+      --danger:#ff3b71;
       --chip:#1d2330;
+      --focus:#f59e0b;
       --shadow:0 10px 30px rgba(0,0,0,.35);
       --radius:16px;
     }
@@ -38,6 +39,7 @@
         radial-gradient(1200px 600px at 15% -10%, rgba(225,29,46,.10), transparent 60%),
         radial-gradient(1200px 600px at 85% 110%, rgba(225,29,46,.10), transparent 60%),
         linear-gradient(180deg,#0b0d10 0%, #0e1217 70%);
+      overflow-x:hidden;
     }
 
     /* Layout */
@@ -78,6 +80,7 @@
       background:linear-gradient(135deg,var(--accent),var(--accent-2));
       color:white; font-weight:600;
       box-shadow: var(--shadow);
+      font:inherit;
     }
     .btn.secondary{background:#121720;border:1px solid var(--stroke)}
     .btn.ghost{background:transparent;border:1px dashed var(--stroke);color:var(--text)}
@@ -108,15 +111,25 @@
       border:1px solid var(--stroke);
       background:var(--bg-2); color:var(--text);
       outline:none;
+      transition:border-color .2s ease, box-shadow .2s ease;
     }
-    input:focus,select:focus{border-color:var(--accent)}
+    input:focus-visible,select:focus-visible{
+      border-color:var(--focus);
+      box-shadow:0 0 0 3px rgba(245,158,11,.35);
+      outline:none;
+    }
 
     .chips{display:flex; flex-wrap:wrap; gap:8px}
     .chip{
       background:var(--chip); border:1px solid var(--stroke);
-      padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted);
+      padding:6px 12px; border-radius:999px; font-size:12px; color:var(--muted);
       cursor:pointer;
+      display:flex; gap:6px; align-items:center;
+      font:inherit;
+      line-height:1.2;
     }
+    .chip span[aria-hidden="true"]{font-size:14px; line-height:1;}
+    .chip .chip-label{overflow-wrap:anywhere;}
 
     /* Main */
     .main{
@@ -193,11 +206,13 @@
     .card .row .btn{width:auto; padding:8px 10px}
 
     /* Tabs */
-    .tabs{display:flex; gap:8px; margin:16px 0 8px}
+    .tabs{display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap}
     .tab{
-      padding:8px 10px; border-radius:10px;
+      padding:8px 12px; border-radius:10px;
       background:#121720; border:1px solid var(--stroke);
       cursor:pointer; user-select:none;
+      color:var(--text);
+      font:inherit;
     }
     .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;border:0}
 
@@ -218,6 +233,87 @@
       border-bottom:1px solid var(--stroke); padding:10px; font-size:13px;
     }
     tbody tr:hover{background:#131a24}
+
+    /* Focus styles */
+    .btn:focus-visible,
+    .tab:focus-visible,
+    .chip:focus-visible{
+      outline:3px solid var(--focus);
+      outline-offset:2px;
+    }
+    .btn:focus-visible{box-shadow:0 0 0 3px rgba(245,158,11,.35);}
+    .tab:focus-visible{box-shadow:0 0 0 2px rgba(245,158,11,.25);}
+
+    /* Responsive */
+    @media (max-width: 1200px){
+      .app{
+        grid-template-columns: 240px 1fr;
+      }
+    }
+    @media (max-width: 1024px){
+      .app{
+        grid-template-columns:1fr;
+        grid-template-areas:
+          "nav"
+          "main"
+          "side";
+      }
+      .side{
+        position:relative;
+        top:auto;
+        height:auto;
+        border-right:none;
+        border-top:1px solid var(--stroke);
+        padding-bottom:32px;
+      }
+      .main{padding:18px 18px 48px;}
+    }
+    @media (max-width: 900px){
+      .hero{grid-template-columns:1fr;}
+      .kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+      table{min-width:0;}
+    }
+    @media (max-width: 640px){
+      .app{grid-template-rows:auto;}
+      .nav{flex-wrap:wrap; gap:12px;}
+      .nav .actions{flex-wrap:wrap;}
+      .side, .main{padding:16px;}
+      table{min-width:0; display:block; width:100%;}
+      .table-wrap{overflow:visible; background:transparent; border:none; box-shadow:none;}
+      .table-wrap table{background:var(--panel); border:1px solid var(--stroke); border-radius:14px; overflow:hidden;}
+      thead{border:0; clip:rect(0 0 0 0); height:1px; width:1px; margin:-1px; overflow:hidden; padding:0; position:absolute;}
+      tbody{display:flex; flex-direction:column; gap:12px; margin:0; padding:0;}
+      tbody tr{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:12px;
+        border:1px solid var(--stroke);
+        border-radius:12px;
+        padding:14px;
+        background:var(--panel);
+      }
+      tbody td{
+        display:block;
+        border:none;
+        padding:0;
+        font-size:14px;
+        word-break:break-word;
+      }
+      tbody td::before{
+        content:attr(data-label);
+        display:block;
+        font-size:12px;
+        color:var(--muted);
+        margin-bottom:4px;
+      }
+      tbody tr:hover{background:var(--panel);}
+    }
+    @media (max-width: 480px){
+      .hero .card{padding:16px;}
+      .cta-row{flex-direction:column; align-items:stretch;}
+      .kpis{grid-template-columns:1fr;}
+      tbody tr{grid-template-columns:1fr;}
+    }
 
     /* Drawer / Modal */
     .drawer{
@@ -253,13 +349,6 @@
     }
     .toast.show{opacity:1; transform:none}
 
-    /* Responsive */
-    @media (max-width: 980px){
-      .app{grid-template-columns:1fr; grid-template-rows:64px auto auto}
-      .side{position:relative; top:0; height:auto; border-right:none; order:2}
-      .main{order:3}
-      .hero{grid-template-columns:1fr}
-    }
   </style>
 </head>
 <body>
@@ -339,21 +428,21 @@
       </section>
 
       <!-- Tabs -->
-      <div class="tabs">
-        <div class="tab active" data-tab="board" onclick="setTab('board')">Board</div>
-        <div class="tab" data-tab="table" onclick="setTab('table')">Tabel</div>
-        <div class="tab" data-tab="insights" onclick="setTab('insights')">Insights</div>
+      <div class="tabs" role="tablist" aria-label="Planning weergaven">
+        <button type="button" id="tab-board" class="tab active" role="tab" aria-selected="true" aria-controls="view-board" data-tab="board" onclick="setTab('board')">Board</button>
+        <button type="button" id="tab-table" class="tab" role="tab" aria-selected="false" aria-controls="view-table" data-tab="table" onclick="setTab('table')">Tabel</button>
+        <button type="button" id="tab-insights" class="tab" role="tab" aria-selected="false" aria-controls="view-insights" data-tab="insights" onclick="setTab('insights')">Insights</button>
       </div>
 
       <!-- Board -->
-      <section id="view-board">
+      <section id="view-board" role="tabpanel" aria-labelledby="tab-board">
         <div class="grid" id="board-grid">
           <!-- Cards komen hier -->
         </div>
       </section>
 
       <!-- Table -->
-      <section id="view-table" style="display:none">
+      <section id="view-table" role="tabpanel" aria-labelledby="tab-table" hidden>
         <div class="table-wrap">
           <table>
             <thead>
@@ -367,7 +456,7 @@
       </section>
 
       <!-- Insights -->
-      <section id="view-insights" style="display:none">
+      <section id="view-insights" role="tabpanel" aria-labelledby="tab-insights" hidden>
         <div class="grid">
           <div class="card">
             <div class="top">
@@ -555,8 +644,13 @@
       el.innerHTML = ""; chips.forEach(c=>el.appendChild(c));
     }
     function chip(text,onClose){
-      const d=document.createElement("div"); d.className="chip"; d.textContent=text + " ✕";
-      d.addEventListener("click", onClose); return d;
+      const btn=document.createElement("button");
+      btn.type="button";
+      btn.className="chip";
+      btn.innerHTML=`<span class="chip-label">${escapeHtml(text)}</span><span aria-hidden="true">✕</span>`;
+      btn.setAttribute("aria-label", `${text} verwijderen`);
+      btn.addEventListener("click", onClose);
+      return btn;
     }
 
     function renderKPIs(){
@@ -625,26 +719,35 @@
 
     function renderTable(){
       const tb = document.getElementById("tbody");
-      tb.innerHTML = filteredTasks().map(t=>`
-        <tr>
-          <td>${t.id}</td>
-          <td>${escapeHtml(t.title)}</td>
-          <td>${workshopName(t.workshop_id)}</td>
-          <td>${t.skill||""}</td>
-          <td>${t.hours||0}</td>
-          <td>${t.due_date||""}</td>
-          <td>${t.priority||""}</td>
-          <td>${t.status||""}</td>
-        </tr>
-      `).join('');
+      tb.innerHTML = filteredTasks().map(t=>{
+        const cells = [
+          {label:"Order", value: escapeHtml(String(t.id))},
+          {label:"Taak", value: escapeHtml(t.title||"—")},
+          {label:"Vestiging", value: escapeHtml(workshopName(t.workshop_id))},
+          {label:"Skill", value: escapeHtml(t.skill||"—")},
+          {label:"Uren", value: escapeHtml(String(t.hours||0))},
+          {label:"Deadline", value: escapeHtml(t.due_date||"—")},
+          {label:"Prioriteit", value: escapeHtml(t.priority||"—")},
+          {label:"Status", value: escapeHtml(t.status||"—")}
+        ];
+        return `
+          <tr>
+            ${cells.map(cell => `<td data-label="${cell.label}">${cell.value}</td>`).join("")}
+          </tr>
+        `;
+      }).join('');
     }
 
     function setTab(tab){
       state.tab = tab;
-      document.querySelectorAll(".tab").forEach(el => el.classList.toggle("active", el.dataset.tab===tab));
-      document.getElementById("view-board").style.display = tab==="board" ? "block" : "none";
-      document.getElementById("view-table").style.display = tab==="table" ? "block" : "none";
-      document.getElementById("view-insights").style.display = tab==="insights" ? "block" : "none";
+      document.querySelectorAll(".tab").forEach(el => {
+        const isActive = el.dataset.tab===tab;
+        el.classList.toggle("active", isActive);
+        el.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+      document.getElementById("view-board").hidden = tab!=="board";
+      document.getElementById("view-table").hidden = tab!=="table";
+      document.getElementById("view-insights").hidden = tab!=="insights";
     }
 
     function workshopName(id){ return (state.workshops.find(w=>w.id===id)||{}).name||"?"; }
