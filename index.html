@@ -361,12 +361,82 @@
     .leave-matrix tbody td{
       border-bottom:1px solid var(--stroke);
       border-right:1px solid var(--stroke);
-      padding:6px 4px;
+      padding:6px;
       font-size:12px;
-      min-width:40px;
+      min-width:48px;
       text-align:center;
       vertical-align:middle;
+      position:relative;
     }
+    .leave-matrix tbody td .cell-stack{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:stretch;
+    }
+    .leave-input{
+      width:100%;
+      padding:6px 4px;
+      border-radius:6px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(17,24,33,.6);
+      color:var(--text);
+      text-align:center;
+      font-weight:600;
+      font-size:12px;
+      transition:border-color .2s ease, background .2s ease;
+    }
+    .leave-input::placeholder{color:rgba(255,255,255,.3);}
+    .leave-input:focus-visible{
+      outline:none;
+      border-color:var(--focus);
+      box-shadow:0 0 0 3px rgba(245,158,11,.25);
+      background:rgba(245,158,11,.18);
+    }
+    .leave-matrix td.has-absence .leave-input{
+      background:rgba(0,0,0,.18);
+      border-color:rgba(255,255,255,.18);
+      color:#fff;
+    }
+    .leave-reason{
+      appearance:none;
+      width:100%;
+      padding:4px 6px;
+      border-radius:6px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(17,24,33,.55);
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:.3px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:border-color .2s ease, background .2s ease, color .2s ease;
+    }
+    .leave-reason:focus-visible{
+      outline:none;
+      border-color:var(--focus);
+      box-shadow:0 0 0 3px rgba(245,158,11,.2);
+      background:rgba(245,158,11,.15);
+    }
+    .leave-reason.is-hidden{display:none;}
+    .leave-matrix td.has-absence{
+      color:#fff;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .leave-matrix td.has-absence .leave-reason{
+      background:rgba(0,0,0,.24);
+      border-color:rgba(255,255,255,.18);
+      color:#fff;
+    }
+    .leave-matrix td.absence--vakantie{background:linear-gradient(180deg,rgba(22,163,74,.32),rgba(15,124,63,.22));}
+    .leave-matrix td.absence--verlof{background:linear-gradient(180deg,rgba(14,165,233,.28),rgba(11,130,190,.2));}
+    .leave-matrix td.absence--ziek{background:linear-gradient(180deg,rgba(244,63,94,.32),rgba(192,28,54,.22));}
+    .leave-matrix td.absence--training{background:linear-gradient(180deg,rgba(168,85,247,.3),rgba(124,45,196,.2));}
+    .leave-matrix td.absence--thuis{background:linear-gradient(180deg,rgba(249,115,22,.28),rgba(194,65,12,.2));}
+    .leave-matrix td.absence--feestdag{background:linear-gradient(180deg,rgba(234,179,8,.32),rgba(195,132,7,.18)); color:#1b1300;}
+    .leave-matrix td.absence--deeltijd{background:linear-gradient(180deg,rgba(100,116,139,.32),rgba(71,85,105,.2));}
+    .leave-matrix td.absence--feestdag .leave-input,
+    .leave-matrix td.absence--feestdag .leave-reason{color:#1b1300;}
     .leave-tag{
       display:flex;
       align-items:center;
@@ -603,12 +673,13 @@
             <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#a855f7,#7c2dc4)"></span>Training</div>
             <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#f97316,#c2410c)"></span>Thuiswerk</div>
             <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#eab308,#c38407)"></span>Feestdag</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#64748b,#475569)"></span>Deeltijd</div>
           </div>
         </div>
         <div class="leave-matrix-wrap">
           <div id="leave-matrix" role="group" aria-describedby="leave-caption"></div>
         </div>
-        <p id="leave-caption" style="margin:12px 0 0; font-size:12px; color:var(--muted);">Kleuren tonen type afwezigheid. Lege cellen betekenen beschikbaar.</p>
+        <p id="leave-caption" style="margin:12px 0 0; font-size:12px; color:var(--muted);">Lege cellen betekenen volledig beschikbaar. Vul hier het aantal afwezige uren in; kleuren tonen de reden.</p>
       </section>
 
       <!-- Tabs -->
@@ -744,8 +815,9 @@
             name:"Emma Vos",
             role:"Planner Noord",
             team:"Service Noord",
+            workdayHours:8,
             entries:{
-              "2024-02-16":{code:"T", type:"training"},
+              "2024-02-16":{code:"T", type:"training", hours:4},
               "2024-08-05":{code:"V", type:"vakantie"},
               "2024-08-06":{code:"V", type:"vakantie"},
               "2024-08-07":{code:"V", type:"vakantie"},
@@ -773,6 +845,7 @@
             name:"Saskia Janssen",
             role:"Planner Zuid",
             team:"Service Zuid",
+            workdayHours:8,
             entries:{
               "2024-04-29":{code:"V", type:"vakantie"},
               "2024-04-30":{code:"V", type:"vakantie"},
@@ -791,6 +864,7 @@
             name:"Daan Vermeer",
             role:"Field Service",
             team:"Service Oost",
+            workdayHours:8,
             entries:{
               "2024-02-05":{code:"T", type:"training"},
               "2024-02-06":{code:"T", type:"training"},
@@ -809,8 +883,9 @@
             name:"Noor Willems",
             role:"Planner Zuid",
             team:"Service Zuid",
+            workdayHours:8,
             entries:{
-              "2024-06-17":{code:"DZ", type:"deeltijd"},
+              "2024-06-17":{code:"DZ", type:"deeltijd", hours:4},
               "2024-09-06":{code:"L", type:"verlof"},
               "2025-02-10":{code:"TW", type:"thuis"},
               "2025-05-27":{code:"V", type:"vakantie"},
@@ -827,14 +902,15 @@
             name:"Bram de Ruiter",
             role:"Technisch Specialist",
             team:"Diagnose",
+            workdayHours:6,
             entries:{
-              "2024-01-08":{code:"DZ", type:"deeltijd"},
+              "2024-01-08":{code:"DZ", type:"deeltijd", hours:3},
               "2024-01-15":{code:"DZ", type:"deeltijd"},
               "2024-05-14":{code:"TW", type:"thuis"},
               "2024-12-03":{code:"DZ", type:"deeltijd"},
               "2025-03-04":{code:"TW", type:"thuis"},
               "2025-06-03":{code:"DZ", type:"deeltijd"},
-              "2025-07-07":{code:"DZ", type:"deeltijd", label:"Deeltijd (ouders)"},
+              "2025-07-07":{code:"DZ", type:"deeltijd", label:"Deeltijd (ouders)", hours:3},
               "2025-07-14":{code:"DZ", type:"deeltijd"},
               "2025-07-21":{code:"DZ", type:"deeltijd"},
               "2025-07-28":{code:"DZ", type:"deeltijd"},
@@ -846,6 +922,7 @@
             name:"Esmee van Leeuwen",
             role:"Customer Care",
             team:"Operations",
+            workdayHours:7.5,
             entries:{
               "2024-11-04":{code:"Z", type:"ziek"},
               "2024-11-05":{code:"Z", type:"ziek"},
@@ -854,13 +931,14 @@
               "2025-07-12":{code:"Z", type:"ziek"},
               "2025-07-13":{code:"Z", type:"ziek"},
               "2025-07-18":{code:"TW", type:"thuis"},
-              "2025-07-31":{code:"L", type:"verlof", label:"Vrije middag"},
+              "2025-07-31":{code:"L", type:"verlof", label:"Vrije middag", hours:3.5},
             }
           },
           {
             name:"Jamal Essers",
             role:"Service Coördinator",
             team:"Service Noord",
+            workdayHours:8,
             entries:{
               "2024-12-26":{code:"FD", type:"feestdag"},
               "2025-05-09":{code:"TW", type:"thuis"},
@@ -876,6 +954,7 @@
             name:"Lotte Sanders",
             role:"Planner",
             team:"Warehouse",
+            workdayHours:8,
             entries:{
               "2024-03-11":{code:"L", type:"verlof"},
               "2024-05-01":{code:"FD", type:"feestdag"},
@@ -896,6 +975,7 @@
             name:"Robert Kiers",
             role:"Planner West",
             team:"Service West",
+            workdayHours:8,
             entries:{
               "2024-01-15":{code:"TW", type:"thuis"},
               "2024-01-16":{code:"TW", type:"thuis"},
@@ -919,6 +999,16 @@
 
     const WEEKDAY_LABELS = ["zo","ma","di","wo","do","vr","za"];
     const MONTH_LABELS = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+    const LEAVE_TYPES = [
+      {value:"vakantie", label:"Vakantie", code:"V"},
+      {value:"verlof", label:"Verlof", code:"L"},
+      {value:"ziek", label:"Ziek", code:"Z"},
+      {value:"training", label:"Training", code:"T"},
+      {value:"thuis", label:"Thuiswerk", code:"TW"},
+      {value:"feestdag", label:"Feestdag", code:"FD"},
+      {value:"deeltijd", label:"Deeltijd", code:"DZ"},
+    ];
+    const DEFAULT_WORKDAY_HOURS = 8;
 
     // Init
     document.addEventListener("DOMContentLoaded", () => {
@@ -936,6 +1026,12 @@
       document.getElementById("btn-export").addEventListener("click", exportCSV);
       document.getElementById("btn-import").addEventListener("click", ()=> document.getElementById("file").click());
       document.getElementById("file").addEventListener("change", handleImport);
+
+      const leaveHost = document.getElementById("leave-matrix");
+      if(leaveHost){
+        leaveHost.addEventListener("change", handleLeaveMatrixChange);
+        leaveHost.addEventListener("input", handleLeaveMatrixInput);
+      }
     });
 
     function fillFilters(){
@@ -1230,7 +1326,7 @@
       table.appendChild(thead);
 
       const tbody = document.createElement("tbody");
-      employees.forEach(emp => {
+      employees.forEach((emp, empIndex) => {
         const tr = document.createElement("tr");
         const rowTh = document.createElement("th");
         rowTh.scope = "row";
@@ -1245,20 +1341,83 @@
         const entries = emp.entries || {};
         days.forEach(day => {
           const td = document.createElement("td");
+          td.dataset.date = day.date;
           const entry = entries[day.date];
+          const stack = document.createElement("div");
+          stack.className = "cell-stack";
+
+          const input = document.createElement("input");
+          input.type = "number";
+          input.inputMode = "decimal";
+          input.className = "leave-input";
+          input.placeholder = "0";
+          input.min = "0";
+          const maxHours = workdayHours(emp);
+          input.max = String(maxHours);
+          input.step = "0.25";
+          input.dataset.emp = String(empIndex);
+          input.dataset.date = day.date;
+          const readableDate = `${day.label} ${day.monthLabel ? day.monthLabel : ""} ${year}`.trim();
+          input.setAttribute("aria-label", `${emp.name} – ${readableDate}`);
+
+          let hasAbsence = false;
+          let typeClass = "";
           if(entry){
-            const span = document.createElement("span");
-            const typeClass = String(entry.type||'verlof').toLowerCase().replace(/[^a-z0-9]+/g,'-');
-            span.className = `leave-tag leave-tag--${typeClass}`;
-            span.textContent = entry.code || entry.type || "";
+            normaliseLeaveEntry(entry, emp);
+            const hoursValue = Number(entry.hours);
             if(entry.label){
-              span.title = entry.label;
+              td.title = entry.label;
             }
-            td.appendChild(span);
+            if(Number.isFinite(hoursValue) && hoursValue > 0){
+              hasAbsence = true;
+              const formatted = formatHoursValue(hoursValue);
+              input.value = formatted;
+              const reasonLabel = leaveTypeLabel(entry.type);
+              input.title = `${formatted} uur afwezig (${reasonLabel})`;
+              typeClass = String(entry.type||'verlof').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+            }else{
+              input.value = "";
+            }
+          }else{
+            input.value = "";
+          }
+          if(!input.value){
+            input.removeAttribute("title");
+            td.removeAttribute("title");
+          }
+          stack.appendChild(input);
+
+          const reasonSelect = document.createElement("select");
+          reasonSelect.className = "leave-reason";
+          reasonSelect.dataset.emp = String(empIndex);
+          reasonSelect.dataset.date = day.date;
+          reasonSelect.setAttribute("aria-label", `Reden afwezigheid ${emp.name} – ${readableDate}`);
+          const reasonOptions = buildLeaveReasonOptions(entry);
+          reasonSelect.innerHTML = reasonOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+          const selectedType = entry && entry.type && reasonOptions.some(opt => opt.value===entry.type)
+            ? entry.type
+            : reasonOptions[0] ? reasonOptions[0].value : "";
+          if(selectedType){
+            reasonSelect.value = selectedType;
+          }
+          if(hasAbsence){
+            reasonSelect.disabled = false;
+          }else{
+            reasonSelect.disabled = true;
+            reasonSelect.classList.add("is-hidden");
+          }
+          stack.appendChild(reasonSelect);
+
+          if(hasAbsence){
+            td.classList.add("has-absence");
+            if(typeClass){
+              td.classList.add(`absence--${typeClass}`);
+            }
           }else{
             td.classList.add("empty");
           }
           if(day.weekend) td.classList.add("is-weekend");
+          td.appendChild(stack);
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -1296,6 +1455,52 @@
     function workshopName(id){ return (state.workshops.find(w=>w.id===id)||{}).name||"?"; }
     function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = val; }
     function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+    function workdayHours(emp){
+      const hours = Number(emp && emp.workdayHours);
+      return Number.isFinite(hours) && hours > 0 ? hours : DEFAULT_WORKDAY_HOURS;
+    }
+    function clampHours(emp, value){
+      const max = workdayHours(emp);
+      const num = Number(value);
+      if(!Number.isFinite(num)) return max;
+      const bounded = Math.min(Math.max(num, 0), max);
+      return Math.round(bounded * 4) / 4;
+    }
+    function formatHoursValue(value){
+      const num = Number(value);
+      if(!Number.isFinite(num)) return "";
+      return Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
+    }
+    function leaveTypeLabel(type){
+      const cfg = LEAVE_TYPES.find(opt => opt.value === type);
+      if(cfg) return cfg.label;
+      return capitalize(String(type||""));
+    }
+    function leaveCodeForType(type){
+      const cfg = LEAVE_TYPES.find(opt => opt.value === type);
+      if(cfg && cfg.code) return cfg.code;
+      const cleaned = String(type||"").replace(/[^a-z0-9]/gi,"");
+      if(!cleaned) return "";
+      return cleaned.slice(0,2).toUpperCase();
+    }
+    function buildLeaveReasonOptions(entry){
+      const options = LEAVE_TYPES.slice();
+      if(entry && entry.type && !options.some(opt => opt.value===entry.type)){
+        options.push({value: entry.type, label: leaveTypeLabel(entry.type), code: entry.code || leaveCodeForType(entry.type)});
+      }
+      return options;
+    }
+    function normaliseLeaveEntry(entry, emp){
+      if(!entry) return null;
+      if(!entry.type) entry.type = LEAVE_TYPES[0].value;
+      if(!entry.code) entry.code = leaveCodeForType(entry.type);
+      entry.hours = clampHours(emp, entry.hours);
+      return entry;
+    }
+    function capitalize(str){
+      if(!str) return "";
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
     function parseISODate(str){
       if(!str) return null;
       const m = String(str).match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1433,6 +1638,102 @@
       }
 
       container.scrollLeft = target;
+    }
+
+    function handleLeaveMatrixInput(event){
+      const target = event.target;
+      if(!target || !target.classList) return;
+      if(target.classList.contains("leave-input")){
+        const raw = String(target.value || "");
+        const hasValue = raw.trim() !== "" && Number(raw) > 0;
+        const reason = target.parentElement ? target.parentElement.querySelector(".leave-reason") : null;
+        if(reason){
+          reason.disabled = !hasValue;
+          reason.classList.toggle("is-hidden", !hasValue);
+        }
+      }
+    }
+
+    function handleLeaveMatrixChange(event){
+      const target = event.target;
+      if(!target || !target.classList) return;
+      if(target.classList.contains("leave-input")){
+        onLeaveHoursChange(target);
+      }else if(target.classList.contains("leave-reason")){
+        onLeaveReasonChange(target);
+      }
+    }
+
+    function onLeaveHoursChange(input){
+      const empIndex = Number(input.dataset.emp);
+      const date = input.dataset.date;
+      if(!Number.isFinite(empIndex) || !date) return;
+      const employee = getEmployeeByIndex(empIndex);
+      if(!employee) return;
+      if(!employee.entries) employee.entries = {};
+      const entries = employee.entries;
+      const raw = String(input.value || "").trim();
+      if(!raw){
+        delete entries[date];
+        renderLeaveMatrix();
+        return;
+      }
+      let hours = Number(raw);
+      if(!Number.isFinite(hours) || hours <= 0){
+        delete entries[date];
+        renderLeaveMatrix();
+        return;
+      }
+      hours = clampHours(employee, hours);
+      input.value = formatHoursValue(hours);
+      let entry = entries[date];
+      if(!entry){
+        entry = {};
+        entries[date] = entry;
+      }
+      entry.hours = hours;
+      const reasonSelect = input.parentElement ? input.parentElement.querySelector(".leave-reason") : null;
+      const reasonValue = reasonSelect ? reasonSelect.value : "";
+      if(reasonValue){
+        entry.type = reasonValue;
+      }else if(!entry.type){
+        entry.type = LEAVE_TYPES[0].value;
+      }
+      entry.code = leaveCodeForType(entry.type);
+      renderLeaveMatrix();
+    }
+
+    function onLeaveReasonChange(select){
+      const empIndex = Number(select.dataset.emp);
+      const date = select.dataset.date;
+      if(!Number.isFinite(empIndex) || !date) return;
+      const employee = getEmployeeByIndex(empIndex);
+      if(!employee) return;
+      if(!employee.entries) employee.entries = {};
+      const entries = employee.entries;
+      let entry = entries[date];
+      const input = select.parentElement ? select.parentElement.querySelector(".leave-input") : null;
+      const hours = input ? Number(input.value) : NaN;
+      if(!entry){
+        if(Number.isFinite(hours) && hours > 0){
+          entry = {hours: clampHours(employee, hours)};
+          entries[date] = entry;
+        }else{
+          return;
+        }
+      }
+      entry.type = select.value || entry.type || LEAVE_TYPES[0].value;
+      entry.code = leaveCodeForType(entry.type);
+      if(Number.isFinite(hours) && hours > 0){
+        entry.hours = clampHours(employee, hours);
+      }
+      renderLeaveMatrix();
+    }
+
+    function getEmployeeByIndex(index){
+      const employees = state.leaveMatrix && Array.isArray(state.leaveMatrix.employees) ? state.leaveMatrix.employees : null;
+      if(!employees) return null;
+      return employees[index] || null;
     }
 
     // Drawer / Modal / Toast
