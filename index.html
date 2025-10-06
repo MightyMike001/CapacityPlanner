@@ -913,7 +913,8 @@
           }
         ]
       },
-      currentLeaveYear: 2025,
+      currentLeaveYear: todayUtc().getUTCFullYear(),
+      leaveMatrixScrollYear: null,
     };
 
     const WEEKDAY_LABELS = ["zo","ma","di","wo","do","vr","za"];
@@ -953,11 +954,13 @@
         yearSel.innerHTML = options.map(y=>`<option value="${y}">${y}</option>`).join('');
         const currentYear = options.includes(state.currentLeaveYear) ? state.currentLeaveYear : options[options.length-1];
         state.currentLeaveYear = currentYear;
+        state.leaveMatrixScrollYear = null;
         yearSel.value = String(currentYear);
         yearSel.addEventListener("change", e => {
           const value = Number(e.target.value);
           if(Number.isFinite(value)){
             state.currentLeaveYear = value;
+            state.leaveMatrixScrollYear = null;
             renderLeaveMatrix();
           }
         });
@@ -1130,7 +1133,10 @@
       const fallback = availableYears.length ? availableYears[availableYears.length-1] : todayUtc().getUTCFullYear();
       if(!Number.isFinite(year) || (availableYears.length && !availableYears.includes(year))){
         year = fallback;
-        state.currentLeaveYear = year;
+        if(state.currentLeaveYear !== year){
+          state.currentLeaveYear = year;
+          state.leaveMatrixScrollYear = null;
+        }
       }
 
       const yearSelect = document.getElementById("f-year");
@@ -1214,6 +1220,7 @@
         const th = document.createElement("th");
         th.scope = "col";
         th.textContent = `${day.weekday} ${day.label}`;
+        th.dataset.date = day.date;
         if(day.weekend) th.classList.add("is-weekend");
         const monthTitle = day.monthLabel ? day.monthLabel.charAt(0).toUpperCase() + day.monthLabel.slice(1) : "";
         th.title = `${day.label} ${monthTitle} ${year}`.trim();
@@ -1259,6 +1266,19 @@
 
       table.appendChild(tbody);
       host.appendChild(table);
+
+      if(state.leaveMatrixScrollYear !== year){
+        const wrap = host.closest(".leave-matrix-wrap");
+        const scrollToWeeks = () => {
+          if(wrap) scrollLeaveMatrixToCurrentWeeks(wrap, table);
+        };
+        if(typeof requestAnimationFrame === "function"){
+          requestAnimationFrame(scrollToWeeks);
+        }else{
+          setTimeout(scrollToWeeks, 0);
+        }
+        state.leaveMatrixScrollYear = year;
+      }
     }
 
     function setTab(tab){
@@ -1287,6 +1307,13 @@
       return date;
     }
     const DAY_MS = 24*60*60*1000;
+    function startOfISOWeek(date){
+      const result = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+      const day = result.getUTCDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      result.setUTCDate(result.getUTCDate() + diff);
+      return result;
+    }
     function isoWeek(date){
       const target = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
       const dayNr = target.getUTCDay() || 7;
@@ -1356,6 +1383,56 @@
       const m = String(date.getUTCMonth()+1).padStart(2,'0');
       const d = String(date.getUTCDate()).padStart(2,'0');
       return `${y}-${m}-${d}`;
+    }
+    function scrollLeaveMatrixToCurrentWeeks(container, table){
+      const headerRow = table.querySelector("thead tr:nth-child(3)");
+      if(!headerRow) return;
+      const headers = Array.from(headerRow.querySelectorAll("th[data-date]"));
+      if(!headers.length) return;
+
+      const today = todayUtc();
+      const start = startOfISOWeek(today);
+      const end = new Date(start);
+      end.setUTCDate(end.getUTCDate() + 13);
+
+      const startKey = formatISODate(start);
+      let startCell = headers.find(th => th.dataset.date === startKey);
+      if(!startCell){
+        const startTime = start.getTime();
+        startCell = headers.find(th => {
+          const date = parseISODate(th.dataset.date);
+          return date && date.getTime() >= startTime;
+        });
+      }
+      if(!startCell) startCell = headers[0];
+
+      const startIndex = headers.indexOf(startCell);
+      const endKey = formatISODate(end);
+      let endCell = headers.find(th => th.dataset.date === endKey);
+      if(!endCell){
+        const endTime = end.getTime();
+        endCell = headers.find(th => {
+          const date = parseISODate(th.dataset.date);
+          return date && date.getTime() > start.getTime() && date.getTime() <= endTime;
+        });
+      }
+      if(!endCell){
+        const fallbackIndex = startIndex >= 0 ? Math.min(startIndex + 13, headers.length - 1) : headers.length - 1;
+        endCell = headers[Math.max(0, fallbackIndex)];
+      }
+
+      const startLeft = startCell.offsetLeft;
+      const endRight = endCell.offsetLeft + endCell.offsetWidth;
+      const visibleWidth = container.clientWidth;
+      const desiredWidth = endRight - startLeft;
+      const margin = 20;
+      let target = Math.max(0, startLeft - margin);
+
+      if(desiredWidth > visibleWidth){
+        target = Math.max(0, Math.min(startLeft, endRight - visibleWidth + margin));
+      }
+
+      container.scrollLeft = target;
     }
 
     // Drawer / Modal / Toast
