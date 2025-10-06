@@ -234,6 +234,161 @@
     }
     tbody tr:hover{background:#131a24}
 
+    /* Leave matrix */
+    .leave-section{
+      margin-top:24px;
+      background:var(--panel);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .leave-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    .leave-header h2{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+    .leave-header p{
+      margin:6px 0 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .leave-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .legend-swatch{
+      width:18px;
+      height:18px;
+      border-radius:6px;
+      border:1px solid var(--stroke);
+    }
+    .leave-matrix-wrap{
+      overflow:auto;
+      border:1px solid var(--stroke);
+      border-radius:12px;
+    }
+    .leave-matrix{
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:960px;
+      width:100%;
+    }
+    .leave-matrix caption{
+      caption-side:bottom;
+      padding:12px 10px 0;
+      font-size:12px;
+      color:var(--muted);
+      text-align:left;
+    }
+    .leave-matrix thead th{
+      position:sticky;
+      top:0;
+      background:#111821;
+      color:#dbe3ee;
+      text-align:center;
+      font-size:11px;
+      letter-spacing:.2px;
+      border-bottom:1px solid var(--stroke);
+      border-right:1px solid var(--stroke);
+      padding:10px 8px;
+      z-index:5;
+    }
+    .leave-matrix thead th:first-child,
+    .leave-matrix thead th:nth-child(2){
+      text-align:left;
+      z-index:6;
+    }
+    .leave-matrix thead th:first-child{left:0; position:sticky; width:200px; min-width:200px;}
+    .leave-matrix thead th:nth-child(2){left:200px; position:sticky;}
+    .leave-matrix thead th.is-weekend,
+    .leave-matrix tbody td.is-weekend{background:#0f141d; color:#9aa5b5;}
+    .leave-matrix tbody th{
+      position:sticky;
+      left:0;
+      text-align:left;
+      font-size:13px;
+      font-weight:600;
+      color:#e3e8f1;
+      background:#121720;
+      border-bottom:1px solid var(--stroke);
+      border-right:1px solid var(--stroke);
+      padding:10px;
+      z-index:4;
+      min-width:200px;
+      width:200px;
+    }
+    .leave-matrix tbody th .meta{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      margin-top:2px;
+    }
+    .leave-matrix tbody tr:nth-child(even) th{background:#151c27;}
+    .leave-matrix tbody td.team{
+      position:sticky;
+      left:200px;
+      text-align:left;
+      background:#111821;
+      color:var(--muted);
+      font-size:12px;
+      padding:10px;
+      z-index:3;
+      min-width:160px;
+    }
+    .leave-matrix tbody tr:nth-child(even) td.team{background:#152030;}
+    .leave-matrix tbody td{
+      border-bottom:1px solid var(--stroke);
+      border-right:1px solid var(--stroke);
+      padding:6px 4px;
+      font-size:12px;
+      min-width:40px;
+      text-align:center;
+      vertical-align:middle;
+    }
+    .leave-tag{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:8px;
+      padding:6px 4px;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:.3px;
+      color:#fff;
+      text-transform:uppercase;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.25);
+      min-width:34px;
+    }
+    .leave-tag--vakantie{background:linear-gradient(135deg,#16a34a,#0f7c3f);}
+    .leave-tag--verlof{background:linear-gradient(135deg,#0ea5e9,#0b82be);}
+    .leave-tag--ziek{background:linear-gradient(135deg,#f43f5e,#c01c36);}
+    .leave-tag--training{background:linear-gradient(135deg,#a855f7,#7c2dc4);}
+    .leave-tag--thuis{background:linear-gradient(135deg,#f97316,#c2410c);}
+    .leave-tag--feestdag{background:linear-gradient(135deg,#eab308,#c38407); color:#1b1300;}
+    .leave-tag--deeltijd{background:linear-gradient(135deg,#64748b,#475569);}
+    .leave-matrix td.empty{background:rgba(255,255,255,.02);}
+    .leave-matrix td.is-weekend.empty{background:rgba(15,20,29,.9);}
+
     /* Focus styles */
     .btn:focus-visible,
     .tab:focus-visible,
@@ -427,6 +582,28 @@
         </div>
       </section>
 
+      <!-- Leave matrix -->
+      <section class="leave-section" aria-labelledby="leave-title">
+        <div class="leave-header">
+          <div>
+            <h2 id="leave-title">Verlofmatrix</h2>
+            <p>Direct overzicht van geplande afwezigheid en capaciteit per teamlid voor de komende weken.</p>
+          </div>
+          <div class="leave-legend" aria-hidden="true">
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#16a34a,#0f7c3f)"></span>Vakantie</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#0ea5e9,#0b82be)"></span>Verlof</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#f43f5e,#c01c36)"></span>Ziek</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#a855f7,#7c2dc4)"></span>Training</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#f97316,#c2410c)"></span>Thuiswerk</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#eab308,#c38407)"></span>Feestdag</div>
+          </div>
+        </div>
+        <div class="leave-matrix-wrap">
+          <div id="leave-matrix" role="group" aria-describedby="leave-caption"></div>
+        </div>
+        <p id="leave-caption" style="margin:12px 0 0; font-size:12px; color:var(--muted);">Kleuren tonen type afwezigheid. Lege cellen betekenen beschikbaar.</p>
+      </section>
+
       <!-- Tabs -->
       <div class="tabs" role="tablist" aria-label="Planning weergaven">
         <button type="button" id="tab-board" class="tab active" role="tab" aria-selected="true" aria-controls="view-board" data-tab="board" onclick="setTab('board')">Board</button>
@@ -553,6 +730,150 @@
         3: 90,
       },
       defaultCapacity: 320,
+      leaveMatrix: {
+        period: "Week 27-31 (juli 2025)",
+        days: [
+          {date:"2025-07-01", label:"01", weekday:"di", week:27},
+          {date:"2025-07-02", label:"02", weekday:"wo", week:27},
+          {date:"2025-07-03", label:"03", weekday:"do", week:27},
+          {date:"2025-07-04", label:"04", weekday:"vr", week:27},
+          {date:"2025-07-05", label:"05", weekday:"za", week:27, weekend:true},
+          {date:"2025-07-06", label:"06", weekday:"zo", week:27, weekend:true},
+          {date:"2025-07-07", label:"07", weekday:"ma", week:28},
+          {date:"2025-07-08", label:"08", weekday:"di", week:28},
+          {date:"2025-07-09", label:"09", weekday:"wo", week:28},
+          {date:"2025-07-10", label:"10", weekday:"do", week:28},
+          {date:"2025-07-11", label:"11", weekday:"vr", week:28},
+          {date:"2025-07-12", label:"12", weekday:"za", week:28, weekend:true},
+          {date:"2025-07-13", label:"13", weekday:"zo", week:28, weekend:true},
+          {date:"2025-07-14", label:"14", weekday:"ma", week:29},
+          {date:"2025-07-15", label:"15", weekday:"di", week:29},
+          {date:"2025-07-16", label:"16", weekday:"wo", week:29},
+          {date:"2025-07-17", label:"17", weekday:"do", week:29},
+          {date:"2025-07-18", label:"18", weekday:"vr", week:29},
+          {date:"2025-07-19", label:"19", weekday:"za", week:29, weekend:true},
+          {date:"2025-07-20", label:"20", weekday:"zo", week:29, weekend:true},
+          {date:"2025-07-21", label:"21", weekday:"ma", week:30},
+          {date:"2025-07-22", label:"22", weekday:"di", week:30},
+          {date:"2025-07-23", label:"23", weekday:"wo", week:30},
+          {date:"2025-07-24", label:"24", weekday:"do", week:30},
+          {date:"2025-07-25", label:"25", weekday:"vr", week:30},
+          {date:"2025-07-26", label:"26", weekday:"za", week:30, weekend:true},
+          {date:"2025-07-27", label:"27", weekday:"zo", week:30, weekend:true},
+          {date:"2025-07-28", label:"28", weekday:"ma", week:31},
+          {date:"2025-07-29", label:"29", weekday:"di", week:31},
+          {date:"2025-07-30", label:"30", weekday:"wo", week:31},
+          {date:"2025-07-31", label:"31", weekday:"do", week:31},
+        ],
+        employees: [
+          {
+            name:"Saskia Janssen",
+            role:"Planner Noord",
+            team:"Service Noord",
+            entries:{
+              "2025-07-01":{code:"V", type:"vakantie", label:"Vakantie (Frankrijk)"},
+              "2025-07-02":{code:"V", type:"vakantie"},
+              "2025-07-03":{code:"V", type:"vakantie"},
+              "2025-07-04":{code:"V", type:"vakantie"},
+              "2025-07-05":{code:"V", type:"vakantie"},
+              "2025-07-08":{code:"V", type:"vakantie"},
+              "2025-07-09":{code:"V", type:"vakantie"},
+              "2025-07-10":{code:"V", type:"vakantie"},
+              "2025-07-11":{code:"V", type:"vakantie"},
+            }
+          },
+          {
+            name:"Daan Vermeer",
+            role:"Field Service",
+            team:"Service Oost",
+            entries:{
+              "2025-07-03":{code:"T", type:"training", label:"NEN3140 hercertificering"},
+              "2025-07-04":{code:"T", type:"training"},
+              "2025-07-09":{code:"TW", type:"thuis", label:"Thuiswerk"},
+              "2025-07-10":{code:"TW", type:"thuis"},
+              "2025-07-26":{code:"FD", type:"feestdag", label:"Regiovrije dag"},
+            }
+          },
+          {
+            name:"Noor Willems",
+            role:"Planner Zuid",
+            team:"Service Zuid",
+            entries:{
+              "2025-07-15":{code:"V", type:"vakantie"},
+              "2025-07-16":{code:"V", type:"vakantie"},
+              "2025-07-17":{code:"V", type:"vakantie"},
+              "2025-07-18":{code:"V", type:"vakantie"},
+              "2025-07-24":{code:"L", type:"verlof", label:"Lang weekend"},
+              "2025-07-25":{code:"L", type:"verlof"},
+            }
+          },
+          {
+            name:"Bram de Ruiter",
+            role:"Technisch Specialist",
+            team:"Diagnose",
+            entries:{
+              "2025-07-07":{code:"DZ", type:"deeltijd", label:"Deeltijd (ouders)"},
+              "2025-07-14":{code:"DZ", type:"deeltijd"},
+              "2025-07-21":{code:"DZ", type:"deeltijd"},
+              "2025-07-28":{code:"DZ", type:"deeltijd"},
+              "2025-07-29":{code:"TW", type:"thuis"},
+              "2025-07-30":{code:"TW", type:"thuis"},
+            }
+          },
+          {
+            name:"Esmee van Leeuwen",
+            role:"Customer Care",
+            team:"Operations",
+            entries:{
+              "2025-07-11":{code:"Z", type:"ziek"},
+              "2025-07-12":{code:"Z", type:"ziek"},
+              "2025-07-13":{code:"Z", type:"ziek"},
+              "2025-07-18":{code:"TW", type:"thuis"},
+              "2025-07-31":{code:"L", type:"verlof", label:"Vrije middag"},
+            }
+          },
+          {
+            name:"Jamal Essers",
+            role:"Service Coördinator",
+            team:"Service Noord",
+            entries:{
+              "2025-07-05":{code:"FD", type:"feestdag"},
+              "2025-07-06":{code:"FD", type:"feestdag"},
+              "2025-07-19":{code:"FD", type:"feestdag"},
+              "2025-07-20":{code:"FD", type:"feestdag"},
+              "2025-07-22":{code:"TW", type:"thuis"},
+              "2025-07-23":{code:"TW", type:"thuis"},
+            }
+          },
+          {
+            name:"Lotte Sanders",
+            role:"Planner",
+            team:"Warehouse",
+            entries:{
+              "2025-07-01":{code:"L", type:"verlof"},
+              "2025-07-02":{code:"L", type:"verlof"},
+              "2025-07-18":{code:"T", type:"training", label:"Lean training"},
+              "2025-07-19":{code:"T", type:"training"},
+              "2025-07-30":{code:"V", type:"vakantie"},
+              "2025-07-31":{code:"V", type:"vakantie"},
+            }
+          },
+          {
+            name:"Robert Kiers",
+            role:"Planner West",
+            team:"Service West",
+            entries:{
+              "2025-07-08":{code:"TW", type:"thuis"},
+              "2025-07-09":{code:"TW", type:"thuis"},
+              "2025-07-10":{code:"TW", type:"thuis"},
+              "2025-07-11":{code:"TW", type:"thuis"},
+              "2025-07-24":{code:"V", type:"vakantie"},
+              "2025-07-25":{code:"V", type:"vakantie"},
+              "2025-07-26":{code:"V", type:"vakantie"},
+            }
+          }
+        ]
+      }
     };
 
     // Init
@@ -592,6 +913,7 @@
       renderHeroStats();
       renderBoard();
       renderTable();
+      renderLeaveMatrix();
       setTab(state.tab);
     }
 
@@ -736,6 +1058,110 @@
           </tr>
         `;
       }).join('');
+    }
+
+    function renderLeaveMatrix(){
+      const host = document.getElementById("leave-matrix");
+      if(!host) return;
+      const data = state.leaveMatrix || {};
+      const days = Array.isArray(data.days) ? data.days : [];
+      const employees = Array.isArray(data.employees) ? data.employees : [];
+      host.innerHTML = "";
+
+      if(!days.length || !employees.length){
+        host.textContent = "Geen verlofdata beschikbaar.";
+        return;
+      }
+
+      const table = document.createElement("table");
+      table.className = "leave-matrix";
+      if(data.period){
+        const caption = document.createElement("caption");
+        caption.textContent = data.period;
+        table.appendChild(caption);
+      }
+
+      const thead = document.createElement("thead");
+      const weekRow = document.createElement("tr");
+      const nameTh = document.createElement("th");
+      nameTh.scope = "col";
+      nameTh.rowSpan = 2;
+      nameTh.textContent = "Naam";
+      weekRow.appendChild(nameTh);
+
+      const teamTh = document.createElement("th");
+      teamTh.scope = "col";
+      teamTh.rowSpan = 2;
+      teamTh.textContent = "Team";
+      weekRow.appendChild(teamTh);
+
+      const weekGroups = [];
+      let current = null;
+      days.forEach(day => {
+        if(!current || current.week !== day.week){
+          current = {week: day.week, span:1};
+          weekGroups.push(current);
+        }else{
+          current.span += 1;
+        }
+      });
+      weekGroups.forEach(group => {
+        const th = document.createElement("th");
+        th.colSpan = group.span;
+        th.textContent = `Week ${String(group.week).padStart(2,'0')}`;
+        weekRow.appendChild(th);
+      });
+
+      const dayRow = document.createElement("tr");
+      days.forEach(day => {
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.textContent = `${day.weekday} ${day.label}`;
+        if(day.weekend) th.classList.add("is-weekend");
+        dayRow.appendChild(th);
+      });
+
+      thead.appendChild(weekRow);
+      thead.appendChild(dayRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      employees.forEach(emp => {
+        const tr = document.createElement("tr");
+        const rowTh = document.createElement("th");
+        rowTh.scope = "row";
+        rowTh.innerHTML = `${escapeHtml(emp.name)}<span class="meta">${escapeHtml(emp.role||"")}</span>`;
+        tr.appendChild(rowTh);
+
+        const teamCell = document.createElement("td");
+        teamCell.className = "team";
+        teamCell.textContent = emp.team || "–";
+        tr.appendChild(teamCell);
+
+        const entries = emp.entries || {};
+        days.forEach(day => {
+          const td = document.createElement("td");
+          const entry = entries[day.date];
+          if(entry){
+            const span = document.createElement("span");
+            const typeClass = String(entry.type||'verlof').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+            span.className = `leave-tag leave-tag--${typeClass}`;
+            span.textContent = entry.code || entry.type || "";
+            if(entry.label){
+              span.title = entry.label;
+            }
+            td.appendChild(span);
+          }else{
+            td.classList.add("empty");
+          }
+          if(day.weekend) td.classList.add("is-weekend");
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      host.appendChild(table);
     }
 
     function setTab(tab){
