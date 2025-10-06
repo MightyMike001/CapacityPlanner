@@ -318,6 +318,10 @@
     }
     .leave-matrix thead th:first-child{left:0; position:sticky; width:200px; min-width:200px;}
     .leave-matrix thead th:nth-child(2){left:200px; position:sticky;}
+    .leave-matrix thead tr:nth-child(1) th{top:0;}
+    .leave-matrix thead tr:nth-child(2) th{top:36px;}
+    .leave-matrix thead tr:nth-child(3) th{top:72px;}
+    .leave-matrix thead th.month-group{font-size:12px; text-transform:capitalize;}
     .leave-matrix thead th.is-weekend,
     .leave-matrix tbody td.is-weekend{background:#0f141d; color:#9aa5b5;}
     .leave-matrix tbody th{
@@ -530,6 +534,9 @@
         <label>Week (maandag)
           <input type="date" id="f-week">
         </label>
+        <label>Jaar (verlofmatrix)
+          <select id="f-year"></select>
+        </label>
         <label>Skill
           <input type="text" id="f-skill" placeholder="bv. 386, 1252, Diagnose">
         </label>
@@ -731,55 +738,53 @@
       },
       defaultCapacity: 320,
       leaveMatrix: {
-        period: "Week 27-31 (juli 2025)",
-        days: [
-          {date:"2025-07-01", label:"01", weekday:"di", week:27},
-          {date:"2025-07-02", label:"02", weekday:"wo", week:27},
-          {date:"2025-07-03", label:"03", weekday:"do", week:27},
-          {date:"2025-07-04", label:"04", weekday:"vr", week:27},
-          {date:"2025-07-05", label:"05", weekday:"za", week:27, weekend:true},
-          {date:"2025-07-06", label:"06", weekday:"zo", week:27, weekend:true},
-          {date:"2025-07-07", label:"07", weekday:"ma", week:28},
-          {date:"2025-07-08", label:"08", weekday:"di", week:28},
-          {date:"2025-07-09", label:"09", weekday:"wo", week:28},
-          {date:"2025-07-10", label:"10", weekday:"do", week:28},
-          {date:"2025-07-11", label:"11", weekday:"vr", week:28},
-          {date:"2025-07-12", label:"12", weekday:"za", week:28, weekend:true},
-          {date:"2025-07-13", label:"13", weekday:"zo", week:28, weekend:true},
-          {date:"2025-07-14", label:"14", weekday:"ma", week:29},
-          {date:"2025-07-15", label:"15", weekday:"di", week:29},
-          {date:"2025-07-16", label:"16", weekday:"wo", week:29},
-          {date:"2025-07-17", label:"17", weekday:"do", week:29},
-          {date:"2025-07-18", label:"18", weekday:"vr", week:29},
-          {date:"2025-07-19", label:"19", weekday:"za", week:29, weekend:true},
-          {date:"2025-07-20", label:"20", weekday:"zo", week:29, weekend:true},
-          {date:"2025-07-21", label:"21", weekday:"ma", week:30},
-          {date:"2025-07-22", label:"22", weekday:"di", week:30},
-          {date:"2025-07-23", label:"23", weekday:"wo", week:30},
-          {date:"2025-07-24", label:"24", weekday:"do", week:30},
-          {date:"2025-07-25", label:"25", weekday:"vr", week:30},
-          {date:"2025-07-26", label:"26", weekday:"za", week:30, weekend:true},
-          {date:"2025-07-27", label:"27", weekday:"zo", week:30, weekend:true},
-          {date:"2025-07-28", label:"28", weekday:"ma", week:31},
-          {date:"2025-07-29", label:"29", weekday:"di", week:31},
-          {date:"2025-07-30", label:"30", weekday:"wo", week:31},
-          {date:"2025-07-31", label:"31", weekday:"do", week:31},
-        ],
+        years: [2024, 2025],
         employees: [
           {
-            name:"Saskia Janssen",
+            name:"Emma Vos",
             role:"Planner Noord",
             team:"Service Noord",
             entries:{
-              "2025-07-01":{code:"V", type:"vakantie", label:"Vakantie (Frankrijk)"},
+              "2024-02-16":{code:"T", type:"training"},
+              "2024-08-05":{code:"V", type:"vakantie"},
+              "2024-08-06":{code:"V", type:"vakantie"},
+              "2024-08-07":{code:"V", type:"vakantie"},
+              "2024-12-27":{code:"TW", type:"thuis"},
+              "2025-01-02":{code:"Z", type:"ziek"},
+              "2025-07-01":{code:"V", type:"vakantie"},
               "2025-07-02":{code:"V", type:"vakantie"},
               "2025-07-03":{code:"V", type:"vakantie"},
               "2025-07-04":{code:"V", type:"vakantie"},
-              "2025-07-05":{code:"V", type:"vakantie"},
+              "2025-07-05":{code:"FD", type:"feestdag"},
+              "2025-07-06":{code:"FD", type:"feestdag"},
+              "2025-07-15":{code:"V", type:"vakantie"},
+              "2025-07-16":{code:"V", type:"vakantie"},
+              "2025-07-17":{code:"V", type:"vakantie"},
+              "2025-07-18":{code:"V", type:"vakantie"},
+              "2025-07-19":{code:"FD", type:"feestdag"},
+              "2025-07-20":{code:"FD", type:"feestdag"},
+              "2025-07-22":{code:"TW", type:"thuis"},
+              "2025-07-23":{code:"TW", type:"thuis"},
+              "2025-12-24":{code:"V", type:"vakantie"},
+              "2025-12-31":{code:"V", type:"vakantie"},
+            }
+          },
+          {
+            name:"Saskia Janssen",
+            role:"Planner Zuid",
+            team:"Service Zuid",
+            entries:{
+              "2024-04-29":{code:"V", type:"vakantie"},
+              "2024-04-30":{code:"V", type:"vakantie"},
+              "2024-05-01":{code:"V", type:"vakantie"},
+              "2024-10-10":{code:"L", type:"verlof"},
+              "2025-03-17":{code:"T", type:"training", label:"Planner summit"},
+              "2025-03-18":{code:"T", type:"training"},
               "2025-07-08":{code:"V", type:"vakantie"},
               "2025-07-09":{code:"V", type:"vakantie"},
               "2025-07-10":{code:"V", type:"vakantie"},
               "2025-07-11":{code:"V", type:"vakantie"},
+              "2025-12-27":{code:"FD", type:"feestdag"},
             }
           },
           {
@@ -787,11 +792,17 @@
             role:"Field Service",
             team:"Service Oost",
             entries:{
+              "2024-02-05":{code:"T", type:"training"},
+              "2024-02-06":{code:"T", type:"training"},
+              "2024-09-23":{code:"TW", type:"thuis"},
+              "2024-09-24":{code:"TW", type:"thuis"},
+              "2025-04-02":{code:"FD", type:"feestdag", label:"Regiovrije dag"},
+              "2025-04-03":{code:"FD", type:"feestdag"},
               "2025-07-03":{code:"T", type:"training", label:"NEN3140 hercertificering"},
               "2025-07-04":{code:"T", type:"training"},
               "2025-07-09":{code:"TW", type:"thuis", label:"Thuiswerk"},
               "2025-07-10":{code:"TW", type:"thuis"},
-              "2025-07-26":{code:"FD", type:"feestdag", label:"Regiovrije dag"},
+              "2025-12-27":{code:"V", type:"vakantie"},
             }
           },
           {
@@ -799,6 +810,11 @@
             role:"Planner Zuid",
             team:"Service Zuid",
             entries:{
+              "2024-06-17":{code:"DZ", type:"deeltijd"},
+              "2024-09-06":{code:"L", type:"verlof"},
+              "2025-02-10":{code:"TW", type:"thuis"},
+              "2025-05-27":{code:"V", type:"vakantie"},
+              "2025-05-28":{code:"V", type:"vakantie"},
               "2025-07-15":{code:"V", type:"vakantie"},
               "2025-07-16":{code:"V", type:"vakantie"},
               "2025-07-17":{code:"V", type:"vakantie"},
@@ -812,6 +828,12 @@
             role:"Technisch Specialist",
             team:"Diagnose",
             entries:{
+              "2024-01-08":{code:"DZ", type:"deeltijd"},
+              "2024-01-15":{code:"DZ", type:"deeltijd"},
+              "2024-05-14":{code:"TW", type:"thuis"},
+              "2024-12-03":{code:"DZ", type:"deeltijd"},
+              "2025-03-04":{code:"TW", type:"thuis"},
+              "2025-06-03":{code:"DZ", type:"deeltijd"},
               "2025-07-07":{code:"DZ", type:"deeltijd", label:"Deeltijd (ouders)"},
               "2025-07-14":{code:"DZ", type:"deeltijd"},
               "2025-07-21":{code:"DZ", type:"deeltijd"},
@@ -825,6 +847,9 @@
             role:"Customer Care",
             team:"Operations",
             entries:{
+              "2024-11-04":{code:"Z", type:"ziek"},
+              "2024-11-05":{code:"Z", type:"ziek"},
+              "2025-03-21":{code:"TW", type:"thuis"},
               "2025-07-11":{code:"Z", type:"ziek"},
               "2025-07-12":{code:"Z", type:"ziek"},
               "2025-07-13":{code:"Z", type:"ziek"},
@@ -837,6 +862,8 @@
             role:"Service Coördinator",
             team:"Service Noord",
             entries:{
+              "2024-12-26":{code:"FD", type:"feestdag"},
+              "2025-05-09":{code:"TW", type:"thuis"},
               "2025-07-05":{code:"FD", type:"feestdag"},
               "2025-07-06":{code:"FD", type:"feestdag"},
               "2025-07-19":{code:"FD", type:"feestdag"},
@@ -850,12 +877,19 @@
             role:"Planner",
             team:"Warehouse",
             entries:{
+              "2024-03-11":{code:"L", type:"verlof"},
+              "2024-05-01":{code:"FD", type:"feestdag"},
+              "2024-11-18":{code:"TW", type:"thuis"},
+              "2025-02-14":{code:"T", type:"training", label:"Lean training"},
+              "2025-05-06":{code:"V", type:"vakantie"},
+              "2025-05-07":{code:"V", type:"vakantie"},
               "2025-07-01":{code:"L", type:"verlof"},
               "2025-07-02":{code:"L", type:"verlof"},
               "2025-07-18":{code:"T", type:"training", label:"Lean training"},
               "2025-07-19":{code:"T", type:"training"},
               "2025-07-30":{code:"V", type:"vakantie"},
               "2025-07-31":{code:"V", type:"vakantie"},
+              "2025-10-21":{code:"Z", type:"ziek"},
             }
           },
           {
@@ -863,6 +897,10 @@
             role:"Planner West",
             team:"Service West",
             entries:{
+              "2024-01-15":{code:"TW", type:"thuis"},
+              "2024-01-16":{code:"TW", type:"thuis"},
+              "2024-07-22":{code:"V", type:"vakantie"},
+              "2024-07-23":{code:"V", type:"vakantie"},
               "2025-07-08":{code:"TW", type:"thuis"},
               "2025-07-09":{code:"TW", type:"thuis"},
               "2025-07-10":{code:"TW", type:"thuis"},
@@ -870,11 +908,16 @@
               "2025-07-24":{code:"V", type:"vakantie"},
               "2025-07-25":{code:"V", type:"vakantie"},
               "2025-07-26":{code:"V", type:"vakantie"},
+              "2025-11-04":{code:"S", type:"ziek"},
             }
           }
         ]
-      }
+      },
+      currentLeaveYear: 2025,
     };
+
+    const WEEKDAY_LABELS = ["zo","ma","di","wo","do","vr","za"];
+    const MONTH_LABELS = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
 
     // Init
     document.addEventListener("DOMContentLoaded", () => {
@@ -901,6 +944,24 @@
 
       document.getElementById("f-week").addEventListener("change", e => { state.filters.week = e.target.value; renderAll(); });
       document.getElementById("f-skill").addEventListener("input", e => { state.filters.skill = e.target.value.toLowerCase(); renderAll(); });
+
+      const yearSel = document.getElementById("f-year");
+      if(yearSel){
+        const years = Array.isArray(state.leaveMatrix?.years) ? [...state.leaveMatrix.years].sort((a,b)=>a-b) : [];
+        const fallbackYear = todayUtc().getUTCFullYear();
+        const options = years.length ? years : [fallbackYear];
+        yearSel.innerHTML = options.map(y=>`<option value="${y}">${y}</option>`).join('');
+        const currentYear = options.includes(state.currentLeaveYear) ? state.currentLeaveYear : options[options.length-1];
+        state.currentLeaveYear = currentYear;
+        yearSel.value = String(currentYear);
+        yearSel.addEventListener("change", e => {
+          const value = Number(e.target.value);
+          if(Number.isFinite(value)){
+            state.currentLeaveYear = value;
+            renderLeaveMatrix();
+          }
+        });
+      }
 
       // Drawer select
       const tsel = document.getElementById("t-ws");
@@ -1063,9 +1124,22 @@
     function renderLeaveMatrix(){
       const host = document.getElementById("leave-matrix");
       if(!host) return;
-      const data = state.leaveMatrix || {};
-      const days = Array.isArray(data.days) ? data.days : [];
-      const employees = Array.isArray(data.employees) ? data.employees : [];
+      const matrix = state.leaveMatrix || {};
+      const availableYears = Array.isArray(matrix.years) && matrix.years.length ? [...matrix.years].sort((a,b)=>a-b) : [];
+      let year = Number(state.currentLeaveYear);
+      const fallback = availableYears.length ? availableYears[availableYears.length-1] : todayUtc().getUTCFullYear();
+      if(!Number.isFinite(year) || (availableYears.length && !availableYears.includes(year))){
+        year = fallback;
+        state.currentLeaveYear = year;
+      }
+
+      const yearSelect = document.getElementById("f-year");
+      if(yearSelect && yearSelect.value !== String(year)){
+        yearSelect.value = String(year);
+      }
+
+      const days = buildLeaveDays(year);
+      const employees = Array.isArray(matrix.employees) ? matrix.employees : [];
       host.innerHTML = "";
 
       if(!days.length || !employees.length){
@@ -1075,42 +1149,65 @@
 
       const table = document.createElement("table");
       table.className = "leave-matrix";
-      if(data.period){
-        const caption = document.createElement("caption");
-        caption.textContent = data.period;
-        table.appendChild(caption);
-      }
+      const caption = document.createElement("caption");
+      caption.textContent = `Volledig jaar ${year} (1 januari – 31 december)`;
+      table.appendChild(caption);
 
       const thead = document.createElement("thead");
-      const weekRow = document.createElement("tr");
+      const monthRow = document.createElement("tr");
       const nameTh = document.createElement("th");
       nameTh.scope = "col";
-      nameTh.rowSpan = 2;
+      nameTh.rowSpan = 3;
       nameTh.textContent = "Naam";
-      weekRow.appendChild(nameTh);
+      monthRow.appendChild(nameTh);
 
       const teamTh = document.createElement("th");
       teamTh.scope = "col";
-      teamTh.rowSpan = 2;
+      teamTh.rowSpan = 3;
       teamTh.textContent = "Team";
-      weekRow.appendChild(teamTh);
+      monthRow.appendChild(teamTh);
 
-      const weekGroups = [];
-      let current = null;
+      const monthGroups = [];
+      let currentMonth = null;
       days.forEach(day => {
-        if(!current || current.week !== day.week){
-          current = {week: day.week, span:1};
-          weekGroups.push(current);
+        if(!currentMonth || currentMonth.month !== day.month){
+          currentMonth = {month: day.month, label: day.monthLabel, span:1};
+          monthGroups.push(currentMonth);
         }else{
-          current.span += 1;
+          currentMonth.span += 1;
+        }
+      });
+      monthGroups.forEach(group => {
+        const th = document.createElement("th");
+        th.colSpan = group.span;
+        th.textContent = group.label.charAt(0).toUpperCase() + group.label.slice(1);
+        th.className = "month-group";
+        monthRow.appendChild(th);
+      });
+      thead.appendChild(monthRow);
+
+      const weekRow = document.createElement("tr");
+      const weekGroups = [];
+      let currentWeek = null;
+      days.forEach(day => {
+        if(!currentWeek || currentWeek.week !== day.week || currentWeek.year !== day.isoYear){
+          currentWeek = {week: day.week, year: day.isoYear, span:1};
+          weekGroups.push(currentWeek);
+        }else{
+          currentWeek.span += 1;
         }
       });
       weekGroups.forEach(group => {
         const th = document.createElement("th");
         th.colSpan = group.span;
-        th.textContent = `Week ${String(group.week).padStart(2,'0')}`;
+        let label = `Week ${String(group.week).padStart(2,'0')}`;
+        if(group.year !== year){
+          label += ` (${group.year})`;
+        }
+        th.textContent = label;
         weekRow.appendChild(th);
       });
+      thead.appendChild(weekRow);
 
       const dayRow = document.createElement("tr");
       days.forEach(day => {
@@ -1118,10 +1215,10 @@
         th.scope = "col";
         th.textContent = `${day.weekday} ${day.label}`;
         if(day.weekend) th.classList.add("is-weekend");
+        const monthTitle = day.monthLabel ? day.monthLabel.charAt(0).toUpperCase() + day.monthLabel.slice(1) : "";
+        th.title = `${day.label} ${monthTitle} ${year}`.trim();
         dayRow.appendChild(th);
       });
-
-      thead.appendChild(weekRow);
       thead.appendChild(dayRow);
       table.appendChild(thead);
 
@@ -1226,6 +1323,39 @@
       if(!date) return value;
       const info = isoWeek(date);
       return `Week ${String(info.week).padStart(2,'0')} (${value})`;
+    }
+
+    function buildLeaveDays(year){
+      if(!Number.isFinite(year)) return [];
+      const start = new Date(Date.UTC(year,0,1));
+      const end = new Date(Date.UTC(year+1,0,1));
+      const days = [];
+      const cursor = new Date(start);
+      while(cursor < end){
+        const current = new Date(cursor);
+        const iso = isoWeek(current);
+        const weekdayIndex = current.getUTCDay();
+        const monthIndex = current.getUTCMonth();
+        days.push({
+          date: formatISODate(current),
+          label: String(current.getUTCDate()).padStart(2,'0'),
+          weekday: WEEKDAY_LABELS[weekdayIndex] || "",
+          week: iso.week,
+          isoYear: iso.year,
+          weekend: weekdayIndex === 0 || weekdayIndex === 6,
+          month: monthIndex,
+          monthLabel: MONTH_LABELS[monthIndex] || "",
+        });
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
+      }
+      return days;
+    }
+
+    function formatISODate(date){
+      const y = date.getUTCFullYear();
+      const m = String(date.getUTCMonth()+1).padStart(2,'0');
+      const d = String(date.getUTCDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
     }
 
     // Drawer / Modal / Toast
