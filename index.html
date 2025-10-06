@@ -10,24 +10,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#0b0d10;
-      --bg-2:#0f1318;
-      --gloss:#10151d;
-      --panel:#12161d;
-      --panel-2:#171c24;
-      --stroke:rgba(255,255,255,.08);
-      --stroke-2:rgba(255,255,255,.12);
-      --text:#e9eef5;
-      --muted:#a7b1bc;
-      --accent:#e11d2e;  /* Linde rood */
-      --accent-2:#8c0f1b;
-      --ok:#17c964;
-      --warn:#f5a524;
-      --danger:#ff3b71;
-      --chip:#1d2330;
+      --bg:#0f1115;
+      --bg-2:#161b22;
+      --gloss:#161b22;
+      --panel:#161b22;
+      --panel-2:#1c222d;
+      --stroke:rgba(148,163,184,.12);
+      --stroke-2:rgba(148,163,184,.2);
+      --text:#f2f4f8;
+      --muted:#9aa6ba;
+      --accent:#ef4444;
+      --accent-2:#dc2626;
+      --ok:#22c55e;
+      --warn:#facc15;
+      --danger:#f87171;
+      --chip:#1d2430;
       --focus:#f59e0b;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-      --radius:16px;
+      --shadow:none;
+      --radius:12px;
+      --leave-vakantie:#16a34a;
+      --leave-verlof:#0ea5e9;
+      --leave-ziek:#f43f5e;
+      --leave-training:#a855f7;
+      --leave-thuis:#f97316;
+      --leave-feestdag:#eab308;
+      --leave-deeltijd:#64748b;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -35,10 +42,7 @@
       margin:0;
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 15% -10%, rgba(225,29,46,.10), transparent 60%),
-        radial-gradient(1200px 600px at 85% 110%, rgba(225,29,46,.10), transparent 60%),
-        linear-gradient(180deg,#0b0d10 0%, #0e1217 70%);
+      background:var(--bg);
       overflow-x:hidden;
     }
 
@@ -58,9 +62,8 @@
       grid-area:nav;
       display:flex; align-items:center; justify-content:space-between;
       padding:10px 18px;
-      background:rgba(255,255,255,.02);
+      background:var(--panel);
       border-bottom:1px solid var(--stroke);
-      backdrop-filter: blur(8px);
       position:sticky; top:0; z-index:50;
     }
     .brand{
@@ -68,29 +71,31 @@
     }
     .brand .logo{
       width:40px;height:40px;border-radius:12px;
-      background:linear-gradient(135deg,var(--accent),#7a0b13);
-      display:grid;place-items:center;font-weight:800;
-      box-shadow: var(--shadow);
+      background:var(--accent);
+      display:grid;place-items:center;font-weight:700;
     }
     .brand .title{font-weight:700; letter-spacing:.2px}
     .nav .actions{display:flex; gap:8px}
     .btn{
       appearance:none; border:none; cursor:pointer;
-      padding:10px 14px; border-radius:12px;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      padding:10px 14px; border-radius:10px;
+      background:var(--accent);
       color:white; font-weight:600;
-      box-shadow: var(--shadow);
       font:inherit;
+      transition:background .2s ease, transform .2s ease;
     }
-    .btn.secondary{background:#121720;border:1px solid var(--stroke)}
-    .btn.ghost{background:transparent;border:1px dashed var(--stroke);color:var(--text)}
+    .btn:hover{transform:translateY(-1px);}
+    .btn.secondary{background:transparent;border:1px solid var(--stroke);color:var(--text)}
+    .btn.secondary:hover{background:var(--panel-2);}
+    .btn.ghost{background:transparent;border:1px solid var(--stroke);color:var(--text)}
+    .btn.ghost:hover{background:var(--panel-2);}
     .btn.small{padding:8px 10px;font-size:12px}
 
     /* Sidebar */
     .side{
       grid-area:side;
       padding:18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+      background:var(--bg);
       border-right:1px solid var(--stroke);
       position:sticky; top:64px; height:calc(100vh - 64px);
       overflow:auto;
@@ -101,7 +106,6 @@
       border-radius: var(--radius);
       padding:14px;
       margin-bottom:14px;
-      box-shadow: var(--shadow);
     }
     .panel h3{margin:0 0 10px; font-size:14px; color:#eaeef5; letter-spacing:.3px}
     label{display:block; font-size:12px; color:var(--muted); margin:10px 0 8px}
@@ -144,22 +148,12 @@
       margin-bottom:18px;
     }
     .hero .card{
-      background:linear-gradient(180deg,var(--panel-2),var(--panel));
+      background:var(--panel);
       border:1px solid var(--stroke);
       border-radius: var(--radius);
       padding:18px;
-      box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
     }
-    .hero .card::after{
-      content:"";
-      position:absolute; inset:-40% -10% auto auto;
-      width:50%; height:200%;
-      background: radial-gradient(closest-side, rgba(225,29,46,.18), transparent 60%);
-      transform: rotate(-18deg);
-      pointer-events:none;
-    }
+    .hero .card::after{display:none;}
     .hero h1{margin:0 0 8px; font-size:24px}
     .hero p{margin:0; color:var(--muted)}
     .cta-row{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap}
@@ -172,7 +166,6 @@
       background:var(--panel);
       border:1px solid var(--stroke);
       border-radius:14px; padding:14px;
-      box-shadow: var(--shadow);
     }
     .kpi .v{font-size:22px; font-weight:800}
     .kpi small{display:block; color:var(--muted)}
@@ -186,20 +179,19 @@
       margin-top:16px;
     }
     .card{
-      background:linear-gradient(180deg,#141a22,#11161d);
+      background:var(--panel);
       border:1px solid var(--stroke-2);
       border-radius:14px; padding:14px;
-      box-shadow: var(--shadow);
     }
     .card .top{display:flex; gap:8px; align-items:center; margin-bottom:6px}
     .badge{
       font-size:11px; border-radius:20px; padding:4px 8px;
-      background:#202633; border:1px solid var(--stroke);
-      color:#c9d1dc;
+      background:transparent; border:1px solid var(--stroke);
+      color:var(--muted);
     }
-    .badge.prio{background:#241317;border-color:#4b191f}
-    .badge.skill{background:#112127;border-color:#19343f}
-    .badge.hours{background:#1c1b10;border-color:#37351d}
+    .badge.prio{color:var(--accent); border-color:rgba(239,68,68,.35);}
+    .badge.skill{color:var(--leave-training); border-color:rgba(168,85,247,.35);}
+    .badge.hours{color:var(--warn); border-color:rgba(250,204,21,.35);}
     .card h4{margin:6px 0 8px}
     .card .sub{color:var(--muted); font-size:12px}
     .card .row{display:flex; justify-content:space-between; align-items:center; margin-top:10px}
@@ -209,22 +201,22 @@
     .tabs{display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap}
     .tab{
       padding:8px 12px; border-radius:10px;
-      background:#121720; border:1px solid var(--stroke);
+      background:transparent; border:1px solid var(--stroke);
       cursor:pointer; user-select:none;
       color:var(--text);
       font:inherit;
     }
-    .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;border:0}
+    .tab.active{background:var(--accent); color:#fff; border-color:var(--accent);}
 
     /* Table */
     .table-wrap{
       margin-top:16px; background:var(--panel); border:1px solid var(--stroke);
-      border-radius:14px; overflow:auto; box-shadow: var(--shadow);
+      border-radius:14px; overflow:auto;
     }
     table{width:100%; border-collapse:collapse; min-width:760px}
     thead th{
       position:sticky; top:0;
-      background:#121720; color:#dbe3ee;
+      background:var(--panel-2); color:#dbe3ee;
       text-align:left; font-size:12px; letter-spacing:.2px;
       border-bottom:1px solid var(--stroke);
       padding:10px;
@@ -232,7 +224,7 @@
     tbody td{
       border-bottom:1px solid var(--stroke); padding:10px; font-size:13px;
     }
-    tbody tr:hover{background:#131a24}
+    tbody tr:hover{background:var(--panel-2)}
 
     /* Leave matrix */
     .leave-section{
@@ -301,7 +293,7 @@
     .leave-matrix thead th{
       position:sticky;
       top:0;
-      background:#111821;
+      background:var(--panel-2);
       color:#dbe3ee;
       text-align:center;
       font-size:11px;
@@ -331,7 +323,7 @@
       font-size:13px;
       font-weight:600;
       color:#e3e8f1;
-      background:#121720;
+      background:var(--panel);
       border-bottom:1px solid var(--stroke);
       border-right:1px solid var(--stroke);
       padding:10px;
@@ -345,19 +337,19 @@
       font-size:11px;
       margin-top:2px;
     }
-    .leave-matrix tbody tr:nth-child(even) th{background:#151c27;}
+    .leave-matrix tbody tr:nth-child(even) th{background:var(--panel-2);}
     .leave-matrix tbody td.team{
       position:sticky;
       left:200px;
       text-align:left;
-      background:#111821;
+      background:var(--panel);
       color:var(--muted);
       font-size:12px;
       padding:10px;
       z-index:3;
       min-width:160px;
     }
-    .leave-matrix tbody tr:nth-child(even) td.team{background:#152030;}
+    .leave-matrix tbody tr:nth-child(even) td.team{background:var(--panel-2);}
     .leave-matrix tbody td{
       border-bottom:1px solid var(--stroke);
       border-right:1px solid var(--stroke);
@@ -420,23 +412,21 @@
     }
     .leave-reason.is-hidden{display:none;}
     .leave-matrix td.has-absence{
-      color:#fff;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+      color:var(--text);
+      box-shadow:inset 0 0 0 1px rgba(148,163,184,.18);
     }
     .leave-matrix td.has-absence .leave-reason{
-      background:rgba(0,0,0,.24);
-      border-color:rgba(255,255,255,.18);
-      color:#fff;
+      background:var(--panel-2);
+      border-color:rgba(148,163,184,.3);
+      color:var(--text);
     }
-    .leave-matrix td.absence--vakantie{background:linear-gradient(180deg,rgba(22,163,74,.32),rgba(15,124,63,.22));}
-    .leave-matrix td.absence--verlof{background:linear-gradient(180deg,rgba(14,165,233,.28),rgba(11,130,190,.2));}
-    .leave-matrix td.absence--ziek{background:linear-gradient(180deg,rgba(244,63,94,.32),rgba(192,28,54,.22));}
-    .leave-matrix td.absence--training{background:linear-gradient(180deg,rgba(168,85,247,.3),rgba(124,45,196,.2));}
-    .leave-matrix td.absence--thuis{background:linear-gradient(180deg,rgba(249,115,22,.28),rgba(194,65,12,.2));}
-    .leave-matrix td.absence--feestdag{background:linear-gradient(180deg,rgba(234,179,8,.32),rgba(195,132,7,.18)); color:#1b1300;}
-    .leave-matrix td.absence--deeltijd{background:linear-gradient(180deg,rgba(100,116,139,.32),rgba(71,85,105,.2));}
-    .leave-matrix td.absence--feestdag .leave-input,
-    .leave-matrix td.absence--feestdag .leave-reason{color:#1b1300;}
+    .leave-matrix td.absence--vakantie{background:rgba(22,163,74,.18);}
+    .leave-matrix td.absence--verlof{background:rgba(14,165,233,.16);}
+    .leave-matrix td.absence--ziek{background:rgba(244,63,94,.18);}
+    .leave-matrix td.absence--training{background:rgba(168,85,247,.16);}
+    .leave-matrix td.absence--thuis{background:rgba(249,115,22,.16);}
+    .leave-matrix td.absence--feestdag{background:rgba(234,179,8,.18);}
+    .leave-matrix td.absence--deeltijd{background:rgba(100,116,139,.18);}
     .leave-tag{
       display:flex;
       align-items:center;
@@ -446,22 +436,28 @@
       font-size:11px;
       font-weight:600;
       letter-spacing:.3px;
-      color:#fff;
+      color:var(--muted);
       text-transform:uppercase;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: inset 0 -1px 0 rgba(0,0,0,.25);
+      background:var(--panel-2);
+      border:1px solid var(--stroke);
       min-width:34px;
     }
-    .leave-tag--vakantie{background:linear-gradient(135deg,#16a34a,#0f7c3f);}
-    .leave-tag--verlof{background:linear-gradient(135deg,#0ea5e9,#0b82be);}
-    .leave-tag--ziek{background:linear-gradient(135deg,#f43f5e,#c01c36);}
-    .leave-tag--training{background:linear-gradient(135deg,#a855f7,#7c2dc4);}
-    .leave-tag--thuis{background:linear-gradient(135deg,#f97316,#c2410c);}
-    .leave-tag--feestdag{background:linear-gradient(135deg,#eab308,#c38407); color:#1b1300;}
-    .leave-tag--deeltijd{background:linear-gradient(135deg,#64748b,#475569);}
+    .leave-tag--vakantie{color:var(--leave-vakantie); border-color:rgba(22,163,74,.35);}
+    .leave-tag--verlof{color:var(--leave-verlof); border-color:rgba(14,165,233,.35);}
+    .leave-tag--ziek{color:var(--leave-ziek); border-color:rgba(244,63,94,.35);}
+    .leave-tag--training{color:var(--leave-training); border-color:rgba(168,85,247,.35);}
+    .leave-tag--thuis{color:var(--leave-thuis); border-color:rgba(249,115,22,.35);}
+    .leave-tag--feestdag{color:var(--leave-feestdag); border-color:rgba(234,179,8,.35);}
+    .leave-tag--deeltijd{color:var(--leave-deeltijd); border-color:rgba(100,116,139,.35);}
     .leave-matrix td.empty{background:rgba(255,255,255,.02);}
-    .leave-matrix td.is-weekend.empty{background:rgba(15,20,29,.9);}
+    .leave-matrix td.is-weekend.empty{background:rgba(17,24,33,.7);}
+    .leave-swatch--vakantie{background:rgba(22,163,74,.4); border-color:rgba(22,163,74,.55);}
+    .leave-swatch--verlof{background:rgba(14,165,233,.4); border-color:rgba(14,165,233,.55);}
+    .leave-swatch--ziek{background:rgba(244,63,94,.45); border-color:rgba(244,63,94,.6);}
+    .leave-swatch--training{background:rgba(168,85,247,.4); border-color:rgba(168,85,247,.55);}
+    .leave-swatch--thuis{background:rgba(249,115,22,.4); border-color:rgba(249,115,22,.55);}
+    .leave-swatch--feestdag{background:rgba(234,179,8,.45); border-color:rgba(234,179,8,.6);}
+    .leave-swatch--deeltijd{background:rgba(100,116,139,.4); border-color:rgba(100,116,139,.6);}
 
     /* Focus styles */
     .btn:focus-visible,
@@ -548,7 +544,6 @@
     .drawer{
       position:fixed; inset:auto 0 0 auto; width:420px; height:100%;
       background:var(--panel-2); border-left:1px solid var(--stroke);
-      box-shadow: -20px 0 50px rgba(0,0,0,.35);
       transform: translateX(110%); transition: transform .25s ease;
       z-index:70; padding:16px;
     }
@@ -565,15 +560,15 @@
     }
     .modal .box{
       width:min(680px, 96vw); background:var(--panel); border:1px solid var(--stroke);
-      border-radius:16px; padding:16px; box-shadow: var(--shadow);
+      border-radius:16px; padding:16px;
     }
     .modal.show{display:grid}
 
     /* Toast */
     .toast{
       position:fixed; right:16px; bottom:16px;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      color:#fff; padding:10px 14px; border-radius:12px; box-shadow: var(--shadow);
+      background:var(--panel-2);
+      color:var(--text); padding:10px 14px; border-radius:12px; border:1px solid var(--stroke);
       opacity:0; transform: translateY(8px); transition:.25s ease; z-index:90;
     }
     .toast.show{opacity:1; transform:none}
@@ -586,7 +581,7 @@
     <nav class="nav">
       <div class="brand">
         <div class="logo">MT</div>
-        <div class="title">Capaciteitsplanner • Template</div>
+        <div class="title">Capaciteitsplanner</div>
       </div>
       <div class="actions">
         <button class="btn secondary" onclick="openModal('about')">Over</button>
@@ -637,8 +632,8 @@
       <!-- Hero -->
       <section class="hero">
         <div class="card">
-          <h1>Plan slim. Snel. Visueel.</h1>
-          <p>Strakke, high-design interface in lijn met je MotracTransport-stijl. Filter, plan en analyseer zonder gedoe.</p>
+          <h1>Capaciteitsplanner</h1>
+          <p>Eén rustgevende omgeving voor planning, capaciteit en verlof.</p>
           <div class="cta-row">
             <button class="btn" onclick="setTab('board')">Board</button>
             <button class="btn secondary" onclick="setTab('table')">Tabel</button>
@@ -667,13 +662,13 @@
             <p>Direct overzicht van geplande afwezigheid en capaciteit per teamlid voor de komende weken.</p>
           </div>
           <div class="leave-legend" aria-hidden="true">
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#16a34a,#0f7c3f)"></span>Vakantie</div>
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#0ea5e9,#0b82be)"></span>Verlof</div>
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#f43f5e,#c01c36)"></span>Ziek</div>
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#a855f7,#7c2dc4)"></span>Training</div>
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#f97316,#c2410c)"></span>Thuiswerk</div>
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#eab308,#c38407)"></span>Feestdag</div>
-            <div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg,#64748b,#475569)"></span>Deeltijd</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--vakantie"></span>Vakantie</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--verlof"></span>Verlof</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--ziek"></span>Ziek</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--training"></span>Training</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--thuis"></span>Thuiswerk</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--feestdag"></span>Feestdag</div>
+            <div class="legend-item"><span class="legend-swatch leave-swatch--deeltijd"></span>Deeltijd</div>
           </div>
         </div>
         <div class="leave-matrix-wrap">
@@ -802,6 +797,7 @@
       ],
       filters:{ workshop_id:"", week:"", skill:"" },
       tab:"board",
+      tasksVersion:0,
       capacityByWorkshop: {
         1: 120,
         2: 110,
@@ -997,6 +993,8 @@
       leaveMatrixScrollYear: null,
     };
 
+    let filteredTasksCache = {signature:null, value:[]};
+
     const WEEKDAY_LABELS = ["zo","ma","di","wo","do","vr","za"];
     const MONTH_LABELS = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
     const LEAVE_TYPES = [
@@ -1040,7 +1038,10 @@
       sel.addEventListener("change", e => { state.filters.workshop_id = e.target.value; renderAll(); });
 
       document.getElementById("f-week").addEventListener("change", e => { state.filters.week = e.target.value; renderAll(); });
-      document.getElementById("f-skill").addEventListener("input", e => { state.filters.skill = e.target.value.toLowerCase(); renderAll(); });
+      document.getElementById("f-skill").addEventListener("input", e => {
+        state.filters.skill = e.target.value;
+        renderAll();
+      });
 
       const yearSel = document.getElementById("f-year");
       if(yearSel){
@@ -1068,45 +1069,78 @@
     }
 
     function renderAll(){
+      const tasks = getFilteredTasks();
       renderChips();
-      renderKPIs();
-      renderHeroStats();
-      renderBoard();
-      renderTable();
+      renderKPIs(tasks);
+      renderHeroStats(tasks);
+      renderBoard(tasks);
+      renderTable(tasks);
       renderLeaveMatrix();
       setTab(state.tab);
     }
 
-    function filteredTasks(){
-      const selectedWeek = parseISODate(state.filters.week);
-      const selectedWeekInfo = selectedWeek ? isoWeek(selectedWeek) : null;
-      return state.tasks.filter(t=>{
-        if(state.filters.workshop_id && Number(state.filters.workshop_id)!==t.workshop_id) return false;
-        if(state.filters.skill && !(t.skill||"").toLowerCase().includes(state.filters.skill)) return false;
-        if(selectedWeekInfo){
-          const due = parseISODate(t.due_date);
-          if(!due) return false;
-          const dueWeek = isoWeek(due);
-          if(dueWeek.year !== selectedWeekInfo.year || dueWeek.week !== selectedWeekInfo.week) return false;
+    function getFilteredTasks(){
+      const filters = state.filters || {};
+      const skillTerm = filters.skill ? filters.skill.trim().toLowerCase() : "";
+      const workshopFilter = filters.workshop_id ? Number(filters.workshop_id) : null;
+      const useWorkshopFilter = Number.isFinite(workshopFilter);
+      const signature = [
+        state.tasksVersion,
+        state.tasks.length,
+        useWorkshopFilter ? workshopFilter : "",
+        filters.week || "",
+        skillTerm
+      ].join("|");
+      if(filteredTasksCache.signature === signature){
+        return filteredTasksCache.value;
+      }
+
+      const selectedWeekDate = parseISODate(filters.week);
+      const selectedWeekInfo = selectedWeekDate ? isoWeek(selectedWeekDate) : null;
+      const items = [];
+
+      for(const task of state.tasks){
+        if(useWorkshopFilter && Number(task.workshop_id) !== workshopFilter) continue;
+        if(skillTerm){
+          const skillValue = String(task.skill || "").toLowerCase();
+          if(!skillValue.includes(skillTerm)) continue;
         }
-        return true;
-      }).sort((a,b)=>{
+        const dueDate = parseISODate(task.due_date);
+        if(selectedWeekInfo){
+          if(!dueDate) continue;
+          const dueWeek = isoWeek(dueDate);
+          if(dueWeek.year !== selectedWeekInfo.year || dueWeek.week !== selectedWeekInfo.week) continue;
+        }
+        const safe = safeHours(task.hours);
+        items.push({
+          ...task,
+          dueDate,
+          safeHours: safe,
+        });
+      }
+
+      items.sort((a,b)=>{
         const pr = prioRank(a.priority) - prioRank(b.priority);
         if(pr !== 0) return pr;
-        const da = parseISODate(a.due_date);
-        const db = parseISODate(b.due_date);
-        if(da && db){
-          if(da < db) return -1;
-          if(da > db) return 1;
-        }else if(da){
+        if(a.dueDate && b.dueDate){
+          if(a.dueDate < b.dueDate) return -1;
+          if(a.dueDate > b.dueDate) return 1;
+        }else if(a.dueDate){
           return -1;
-        }else if(db){
+        }else if(b.dueDate){
           return 1;
         }
-        const diff = safeHours(b.hours) - safeHours(a.hours);
+        const diff = b.safeHours - a.safeHours;
         if(diff !== 0) return diff;
         return String(a.title||"").localeCompare(String(b.title||""), "nl", {sensitivity:"base"});
       });
+
+      filteredTasksCache = {signature, value: items};
+      return filteredTasksCache.value;
+    }
+
+    function invalidateFilteredTasks(){
+      filteredTasksCache = {signature:null, value:[]};
     }
     function prioRank(p){ return p==="Hoog"?0:p==="Normaal"?1:2; }
 
@@ -1120,8 +1154,13 @@
       if(state.filters.week){
         chips.push(chip(`Week: ${formatWeekLabel(state.filters.week)}`, ()=>{ state.filters.week=""; document.getElementById("f-week").value=""; renderAll(); }));
       }
-      if(state.filters.skill){
-        chips.push(chip(`Skill: ${state.filters.skill}`, ()=>{ state.filters.skill=""; document.getElementById("f-skill").value=""; renderAll(); }));
+      const skillFilter = state.filters.skill ? state.filters.skill.trim() : "";
+      if(skillFilter){
+        chips.push(chip(`Skill: ${skillFilter}`, ()=>{
+          state.filters.skill="";
+          document.getElementById("f-skill").value="";
+          renderAll();
+        }));
       }
       el.innerHTML = ""; chips.forEach(c=>el.appendChild(c));
     }
@@ -1135,11 +1174,17 @@
       return btn;
     }
 
-    function renderKPIs(){
-      const tasks = filteredTasks();
+    function renderKPIs(tasks){
       const capacity = currentCapacity();
-      const totalHours = tasks.reduce((sum,t)=> sum + safeHours(t.hours), 0);
-      const plannedHours = tasks.filter(t=>!isDone(t.status)).reduce((sum,t)=> sum + safeHours(t.hours), 0);
+      const totalHours = tasks.reduce((sum,t)=> {
+        const value = Number.isFinite(t.safeHours) ? t.safeHours : safeHours(t.hours);
+        return sum + value;
+      }, 0);
+      const plannedHours = tasks.reduce((sum,t)=> {
+        if(isDone(t.status)) return sum;
+        const value = Number.isFinite(t.safeHours) ? t.safeHours : safeHours(t.hours);
+        return sum + value;
+      }, 0);
       const utilisation = capacity>0 ? Math.min(100, Math.round((plannedHours/capacity)*100)) : 0;
       const backlog = capacity>0 ? Math.max(0, totalHours - capacity) : totalHours;
 
@@ -1149,11 +1194,10 @@
       setText("kpi-backlog", backlog);
     }
 
-    function renderHeroStats(){
-      const tasks = filteredTasks();
+    function renderHeroStats(tasks){
       const today = todayUtc();
       const info = tasks.reduce((acc,t)=>{
-        const due = parseISODate(t.due_date);
+        const due = t.dueDate || parseISODate(t.due_date);
         const done = isDone(t.status);
         const hasCoreData = Boolean(t.title && due && t.skill);
         if(hasCoreData) acc.completeData += 1;
@@ -1173,17 +1217,18 @@
       setText("kpi-late", info.overdue);
     }
 
-    function renderBoard(){
+    function renderBoard(tasks){
       const container = document.getElementById("board-grid");
       container.innerHTML = "";
-      filteredTasks().forEach(t=>{
+      tasks.forEach(t=>{
+        const hoursLabel = formatHoursValue(Number.isFinite(t.safeHours) ? t.safeHours : safeHours(t.hours));
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
           <div class="top">
             <span class="badge prio">${t.priority}</span>
             <span class="badge skill">${t.skill||"—"}</span>
-            <span class="badge hours">${t.hours||0}h</span>
+            <span class="badge hours">${hoursLabel || "0"}h</span>
           </div>
           <h4>${escapeHtml(t.title)}</h4>
           <div class="sub">Due ${t.due_date||"—"} • ${workshopName(t.workshop_id)}</div>
@@ -1199,15 +1244,16 @@
       });
     }
 
-    function renderTable(){
+    function renderTable(tasks){
       const tb = document.getElementById("tbody");
-      tb.innerHTML = filteredTasks().map(t=>{
+      tb.innerHTML = tasks.map(t=>{
+        const hoursLabel = formatHoursValue(Number.isFinite(t.safeHours) ? t.safeHours : safeHours(t.hours));
         const cells = [
           {label:"Order", value: escapeHtml(String(t.id))},
           {label:"Taak", value: escapeHtml(t.title||"—")},
           {label:"Vestiging", value: escapeHtml(workshopName(t.workshop_id))},
           {label:"Skill", value: escapeHtml(t.skill||"—")},
-          {label:"Uren", value: escapeHtml(String(t.hours||0))},
+          {label:"Uren", value: escapeHtml(hoursLabel || "0")},
           {label:"Deadline", value: escapeHtml(t.due_date||"—")},
           {label:"Prioriteit", value: escapeHtml(t.priority||"—")},
           {label:"Status", value: escapeHtml(t.status||"—")}
@@ -1756,6 +1802,8 @@
         status: document.getElementById("t-status").value || "Open",
       };
       state.tasks.unshift(t);
+      state.tasksVersion += 1;
+      invalidateFilteredTasks();
       renderAll();
       closeDrawer();
       toast("Taak opgeslagen");
@@ -1782,7 +1830,8 @@
     // Export / Import
     function exportCSV(){
       const rows = [["Order","Titel","Vestiging","Skill","Uren","Deadline","Prioriteit","Status"]];
-      filteredTasks().forEach(t=> rows.push([t.id,t.title,workshopName(t.workshop_id),t.skill||"",t.hours||0,t.due_date||"",t.priority||"",t.status||""]));
+      const tasks = getFilteredTasks();
+      tasks.forEach(t=> rows.push([t.id,t.title,workshopName(t.workshop_id),t.skill||"",(Number.isFinite(t.safeHours)?t.safeHours:t.hours)||0,t.due_date||"",t.priority||"",t.status||""]));
       const csv = rows.map(r => r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
       const blob = new Blob([csv], {type:"text/csv"});
       const url = URL.createObjectURL(blob);
@@ -1797,7 +1846,12 @@
       try{
         const data = JSON.parse(text);
         if(Array.isArray(data)){
-          state.tasks = data; renderAll(); toast("JSON geïmporteerd"); return;
+          state.tasks = data;
+          state.tasksVersion += 1;
+          invalidateFilteredTasks();
+          renderAll();
+          toast("JSON geïmporteerd");
+          return;
         }
       }catch(_){}
       toast("Ondersteund nu JSON array (taken). CSV/XLSX mapping kan worden toegevoegd.");
