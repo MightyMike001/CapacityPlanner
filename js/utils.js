@@ -154,3 +154,16 @@ export function formatISODate(date) {
   const d = String(date.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+
+export function debounce(callback, delay) {
+  let timerId = null;
+  return (...args) => {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+    }
+    timerId = setTimeout(() => {
+      timerId = null;
+      callback(...args);
+    }, delay);
+  };
+}

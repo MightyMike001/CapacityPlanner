@@ -11,6 +11,7 @@ import {
   parseISODate,
   formatWeekLabel,
   workshopName,
+  debounce,
 } from "./utils.js";
 
 export function fillFilters() {
@@ -34,9 +35,12 @@ export function fillFilters() {
 
   const skillInput = document.getElementById("f-skill");
   if (skillInput) {
-    skillInput.addEventListener("input", (event) => {
-      state.filters.skill = event.target.value;
+    const handleSkillChange = debounce((value) => {
+      state.filters.skill = value;
       renderAll();
+    }, 200);
+    skillInput.addEventListener("input", (event) => {
+      handleSkillChange(event.target.value);
     });
   }
 
