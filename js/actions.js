@@ -8,22 +8,36 @@ import { workshopName } from "./utils.js";
 
 export function openDrawer() {
   const drawer = document.getElementById("drawer");
-  if (drawer) drawer.classList.add("open");
+  if (drawer) {
+    drawer.classList.add("open");
+    drawer.setAttribute("aria-hidden", "false");
+  }
 }
 
 export function closeDrawer() {
   const drawer = document.getElementById("drawer");
-  if (drawer) drawer.classList.remove("open");
+  if (drawer) {
+    drawer.classList.remove("open");
+    drawer.setAttribute("aria-hidden", "true");
+  }
 }
 
 export function openModal(id) {
   const modal = document.getElementById(`modal-${id}`);
-  if (modal) modal.classList.add("show");
+  if (modal) {
+    modal.classList.add("show");
+    modal.removeAttribute("hidden");
+    modal.setAttribute("aria-hidden", "false");
+  }
 }
 
 export function closeModal(id) {
   const modal = document.getElementById(`modal-${id}`);
-  if (modal) modal.classList.remove("show");
+  if (modal) {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("hidden", "");
+  }
 }
 
 export function toast(message) {

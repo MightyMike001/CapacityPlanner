@@ -3,22 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Motrac • High Design Template</title>
+  <title>Motrac • Capacity Compass</title>
   <meta name="color-scheme" content="dark light">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app">
-    <!-- Topbar -->
-    <nav class="nav">
+  <div class="app-shell">
+    <header class="topbar" role="banner">
       <div class="brand">
-        <div class="logo">MT</div>
-        <div class="title">Capaciteitsplanner</div>
+        <div class="brand-mark" aria-hidden="true">MT</div>
+        <div class="brand-text">
+          <span class="brand-title">Capacity Compass</span>
+          <span class="brand-sub">Realtime planning cockpit</span>
+        </div>
       </div>
-      <div class="actions">
+      <div class="topbar-actions">
         <button class="btn ghost icon" id="btn-theme" type="button" aria-label="Schakel naar licht thema">
           <span class="icon" aria-hidden="true">🌙</span>
           <span class="label">Licht thema</span>
@@ -26,156 +28,173 @@
         <button class="btn secondary" onclick="openModal('about')">Over</button>
         <button class="btn" onclick="openDrawer()">Nieuwe taak</button>
       </div>
-    </nav>
+    </header>
 
-    <!-- Sidebar -->
-    <aside class="side">
-      <div class="panel">
-        <h3>Filters</h3>
-        <label>Vestiging
-          <select id="f-workshop"></select>
-        </label>
-        <label>Week (maandag)
-          <input type="date" id="f-week">
-        </label>
-        <label>Jaar (verlofmatrix)
-          <select id="f-year"></select>
-        </label>
-        <label>Skill
-          <input type="text" id="f-skill" placeholder="bv. 386, 1252, Diagnose">
-        </label>
-        <div class="chips" id="chips"></div>
-        <button class="btn small ghost" id="btn-reset">Reset filters</button>
-      </div>
-
-      <div class="panel">
-        <h3>Status</h3>
-        <div class="kpis">
-          <div class="kpi"><span class="v" id="kpi-cap">–</span><small>Beschikbare uren</small></div>
-          <div class="kpi"><span class="v" id="kpi-load">–</span><small>Ingepland</small></div>
-          <div class="kpi"><span class="v" id="kpi-util">–</span><small>Benutting</small></div>
-          <div class="kpi"><span class="v" id="kpi-backlog">–</span><small>Backlog</small></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>Acties</h3>
-        <button class="btn small" id="btn-export">Export</button>
-        <button class="btn small secondary" id="btn-import">Import</button>
-        <input id="file" type="file" accept=".json,.csv,.xlsx" hidden />
-      </div>
-    </aside>
-
-    <!-- Main -->
-    <main class="main">
-      <!-- Hero -->
-      <section class="hero">
-        <div class="card">
-          <h1>Capaciteitsplanner</h1>
-          <p>Eén rustgevende omgeving voor planning, capaciteit en verlof.</p>
-          <div class="cta-row">
-            <button class="btn" onclick="setTab('board')">Board</button>
-            <button class="btn secondary" onclick="setTab('table')">Tabel</button>
-            <button class="btn ghost" onclick="setTab('insights')">Insights</button>
+    <main class="app-main" role="main">
+      <section class="hero-panels" aria-label="Snelle acties en highlights">
+        <article class="card hero-card">
+          <div class="hero-header">
+            <span class="eyebrow">Dashboard</span>
+            <h1>Capaciteitsplanner</h1>
+            <p>Een kalm overzicht van capaciteit, werkdruk en verlof voor al je vestigingen.</p>
           </div>
-        </div>
-        <div class="card">
-          <div class="kpis" style="grid-template-columns:repeat(2,1fr);gap:12px">
-            <div class="kpi ok"><span class="v" id="kpi-ok">98%</span><small>Datakwaliteit</small></div>
-            <div class="kpi warn"><span class="v" id="kpi-sla">12</span><small>SLA’s risicovol</small></div>
-            <div class="kpi"><span class="v" id="kpi-open">43</span><small>Open taken</small></div>
-            <div class="kpi danger"><span class="v" id="kpi-late">7</span><small>Te laat</small></div>
+          <div class="hero-actions">
+            <button class="btn" onclick="setTab('board')">Open planbord</button>
+            <button class="btn secondary" onclick="setTab('table')">Bekijk tabel</button>
+            <button class="btn ghost" onclick="setTab('insights')">Analyseer trends</button>
           </div>
-          <div class="cta-row">
+        </article>
+        <article class="card hero-card hero-stats">
+          <h2>Datakwaliteit</h2>
+          <p class="sub">Snelle controles op openstaande taken.</p>
+          <dl class="metric-grid">
+            <div>
+              <dt>Datakwaliteit</dt>
+              <dd id="kpi-ok">–</dd>
+            </div>
+            <div>
+              <dt>SLA's risicovol</dt>
+              <dd id="kpi-sla">–</dd>
+            </div>
+            <div>
+              <dt>Open taken</dt>
+              <dd id="kpi-open">–</dd>
+            </div>
+            <div>
+              <dt>Te laat</dt>
+              <dd id="kpi-late">–</dd>
+            </div>
+          </dl>
+          <div class="hero-actions compact">
             <button class="btn small" onclick="toast('Auto-planning (demo) klaar')">Auto-planning</button>
             <button class="btn small secondary" onclick="toast('Geëxporteerd')">Export CSV</button>
           </div>
-        </div>
+        </article>
+        <article class="card hero-card capacity-card">
+          <h2>Capaciteitsmomentopname</h2>
+          <p class="sub">Realtime berekening op basis van filters.</p>
+          <div class="kpi-grid">
+            <div class="kpi"><span class="value" id="kpi-cap">–</span><span class="label">Beschikbare uren</span></div>
+            <div class="kpi"><span class="value" id="kpi-load">–</span><span class="label">Ingepland</span></div>
+            <div class="kpi"><span class="value" id="kpi-util">–</span><span class="label">Benutting</span></div>
+            <div class="kpi"><span class="value" id="kpi-backlog">–</span><span class="label">Backlog</span></div>
+          </div>
+        </article>
       </section>
 
-      <!-- Leave matrix -->
-      <section class="leave-section" aria-labelledby="leave-title">
+      <section class="filters card" aria-labelledby="filters-title">
+        <div class="filters-header">
+          <h2 id="filters-title">Filters</h2>
+          <div class="filter-actions">
+            <button class="btn small ghost" id="btn-reset">Reset</button>
+            <button class="btn small" id="btn-export">Export</button>
+            <button class="btn small secondary" id="btn-import">Import</button>
+          </div>
+        </div>
+        <div class="filters-grid">
+          <label>Vestiging
+            <select id="f-workshop"></select>
+          </label>
+          <label>Week (maandag)
+            <input type="date" id="f-week">
+          </label>
+          <label>Jaar (verlofmatrix)
+            <select id="f-year"></select>
+          </label>
+          <label>Skill
+            <input type="text" id="f-skill" placeholder="bv. 386, 1252, Diagnose">
+          </label>
+        </div>
+        <div class="chip-bar" id="chips" aria-live="polite"></div>
+        <p class="filters-hint">Importeer JSON takenbestanden of maak snel nieuwe taken via het paneel "Nieuwe taak".</p>
+        <input id="file" type="file" accept=".json,.csv,.xlsx" hidden />
+      </section>
+
+      <section class="leave card" aria-labelledby="leave-title">
         <div class="leave-header">
           <div>
             <h2 id="leave-title">Verlofmatrix</h2>
-            <p>Direct overzicht van geplande afwezigheid en capaciteit per teamlid voor de komende weken.</p>
+            <p>Overzicht van ingevoerde afwezigheid per collega. Pas uren aan in de cellen en kies een reden.</p>
           </div>
-          <div class="leave-legend" aria-hidden="true">
-            <div class="legend-item"><span class="legend-swatch leave-swatch--vakantie"></span>Vakantie</div>
-            <div class="legend-item"><span class="legend-swatch leave-swatch--verlof"></span>Verlof</div>
-            <div class="legend-item"><span class="legend-swatch leave-swatch--ziek"></span>Ziek</div>
-            <div class="legend-item"><span class="legend-swatch leave-swatch--training"></span>Training</div>
-            <div class="legend-item"><span class="legend-swatch leave-swatch--thuis"></span>Thuiswerk</div>
-            <div class="legend-item"><span class="legend-swatch leave-swatch--feestdag"></span>Feestdag</div>
-            <div class="legend-item"><span class="legend-swatch leave-swatch--deeltijd"></span>Deeltijd</div>
+          <div class="legend" aria-hidden="true">
+            <span><span class="legend-swatch leave-swatch--vakantie"></span>Vakantie</span>
+            <span><span class="legend-swatch leave-swatch--verlof"></span>Verlof</span>
+            <span><span class="legend-swatch leave-swatch--ziek"></span>Ziek</span>
+            <span><span class="legend-swatch leave-swatch--training"></span>Training</span>
+            <span><span class="legend-swatch leave-swatch--thuis"></span>Thuiswerk</span>
+            <span><span class="legend-swatch leave-swatch--feestdag"></span>Feestdag</span>
+            <span><span class="legend-swatch leave-swatch--deeltijd"></span>Deeltijd</span>
           </div>
         </div>
         <div class="leave-matrix-wrap">
           <div id="leave-matrix" role="group" aria-describedby="leave-caption"></div>
         </div>
-        <p id="leave-caption" style="margin:12px 0 0; font-size:12px; color:var(--muted);">Lege cellen betekenen volledig beschikbaar. Vul hier het aantal afwezige uren in; kleuren tonen de reden.</p>
+        <p id="leave-caption" class="leave-caption">Lege cellen betekenen volledige beschikbaarheid. Vul het aantal afwezige uren in en kies een reden.</p>
       </section>
 
-      <!-- Tabs -->
-      <div class="tabs" role="tablist" aria-label="Planning weergaven">
-        <button type="button" id="tab-board" class="tab active" role="tab" aria-selected="true" aria-controls="view-board" data-tab="board" onclick="setTab('board')">Board</button>
-        <button type="button" id="tab-table" class="tab" role="tab" aria-selected="false" aria-controls="view-table" data-tab="table" onclick="setTab('table')">Tabel</button>
-        <button type="button" id="tab-insights" class="tab" role="tab" aria-selected="false" aria-controls="view-insights" data-tab="insights" onclick="setTab('insights')">Insights</button>
-      </div>
-
-      <!-- Board -->
-      <section id="view-board" role="tabpanel" aria-labelledby="tab-board">
-        <div class="grid" id="board-grid">
-          <!-- Cards komen hier -->
+      <section class="planning card" aria-label="Planning weergaven">
+        <div class="tablist" role="tablist">
+          <button type="button" id="tab-board" class="tab active" role="tab" aria-selected="true" aria-controls="view-board" data-tab="board" onclick="setTab('board')">Board</button>
+          <button type="button" id="tab-table" class="tab" role="tab" aria-selected="false" aria-controls="view-table" data-tab="table" onclick="setTab('table')">Tabel</button>
+          <button type="button" id="tab-insights" class="tab" role="tab" aria-selected="false" aria-controls="view-insights" data-tab="insights" onclick="setTab('insights')">Insights</button>
         </div>
-      </section>
-
-      <!-- Table -->
-      <section id="view-table" role="tabpanel" aria-labelledby="tab-table" hidden>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Order</th><th>Taak</th><th>Vestiging</th><th>Skill</th><th>Uren</th><th>Deadline</th><th>Prioriteit</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Insights -->
-      <section id="view-insights" role="tabpanel" aria-labelledby="tab-insights" hidden>
-        <div class="grid">
-          <div class="card">
-            <div class="top">
-              <span class="badge">Weekbalans</span>
-              <span class="badge hours">320h cap</span>
-            </div>
-            <h4>Capaciteit vs. Werkdruk</h4>
-            <p class="sub">Snelle indicatie per vestiging/week. Kleur op basis van overschrijding.</p>
-            <div class="capacity-chart" id="capacity-chart">
-              <div class="capacity-chart__empty">Grafiek wordt geladen…</div>
-            </div>
-            <div class="capacity-chart__legend" aria-hidden="true">
-              <span class="legend-dot legend-dot--capacity"></span> Capaciteit
-              <span class="legend-dot legend-dot--workload"></span> Werkaanbod
-            </div>
-            <div class="row"><span class="badge prio">Hoog risico</span><button class="btn small" onclick="toast('Insight bijgewerkt')">V verversen</button></div>
+        <section id="view-board" role="tabpanel" aria-labelledby="tab-board">
+          <div class="board-grid" id="board-grid"></div>
+        </section>
+        <section id="view-table" role="tabpanel" aria-labelledby="tab-table" hidden>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Taak</th>
+                  <th>Vestiging</th>
+                  <th>Skill</th>
+                  <th>Uren</th>
+                  <th>Deadline</th>
+                  <th>Prioriteit</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
           </div>
-          <div class="card">
-            <div class="top"><span class="badge">SLA’s</span></div>
-            <h4>Naderende deadlines</h4>
-            <p class="sub">Taken binnen 72 uur met norm &gt; 8 uur.</p>
-            <div class="row"><span class="badge skill">Diagnose</span><button class="btn small secondary">Open lijst</button></div>
+        </section>
+        <section id="view-insights" role="tabpanel" aria-labelledby="tab-insights" hidden>
+          <div class="insights-grid">
+            <article class="card inset">
+              <div class="card-top">
+                <span class="badge">Weekbalans</span>
+                <span class="badge hours">320h cap</span>
+              </div>
+              <h3>Capaciteit vs. Werkdruk</h3>
+              <p class="sub">Snelle indicatie per vestiging/week. Kleur op basis van overschrijding.</p>
+              <div class="capacity-chart" id="capacity-chart">
+                <div class="capacity-chart__empty">Grafiek wordt geladen…</div>
+              </div>
+              <div class="capacity-chart__legend" aria-hidden="true">
+                <span class="legend-dot legend-dot--capacity"></span> Capaciteit
+                <span class="legend-dot legend-dot--workload"></span> Werkaanbod
+              </div>
+            </article>
+            <article class="card inset">
+              <div class="card-top">
+                <span class="badge">SLA's</span>
+              </div>
+              <h3>Naderende deadlines</h3>
+              <p class="sub">Taken binnen 72 uur met norm &gt; 8 uur.</p>
+              <div class="row">
+                <span class="badge skill">Diagnose</span>
+                <button class="btn small secondary">Open lijst</button>
+              </div>
+            </article>
           </div>
-        </div>
+        </section>
       </section>
     </main>
   </div>
 
-  <!-- Drawer (Nieuwe taak) -->
-  <aside class="drawer" id="drawer">
+  <aside class="drawer" id="drawer" aria-hidden="true">
     <header>
       <h3>Nieuwe taak</h3>
       <button class="btn small secondary" onclick="closeDrawer()">Sluiten</button>
@@ -210,20 +229,18 @@
     </div>
   </aside>
 
-  <!-- Modal Over -->
-  <div class="modal" id="modal-about" onclick="if(event.target===this) closeModal('about')">
-    <div class="box">
-      <h3 style="margin-top:0">Over deze template</h3>
-      <p>High-design HTML in de stijl van je MotracTransport-site. Donker thema, rood-accenten, glasachtige panelen, micro-interacties.</p>
-      <div style="display:flex; gap:10px; margin-top:8px">
-        <button class="btn small" onclick="closeModal('about')">OK</button>
+  <div class="modal" id="modal-about" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true" hidden onclick="if(event.target===this) closeModal('about')">
+    <div class="modal-box">
+      <h3 id="about-title">Over deze cockpit</h3>
+      <p>High-design dashboard met focus op rust, overzicht en snelle acties voor planners.</p>
+      <div class="modal-actions">
+        <button class="btn small" onclick="closeModal('about')">Prima</button>
         <button class="btn small secondary" onclick="toast('Documentatie geopend')">Documentatie</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast">Gereed</div>
+  <div class="toast" id="toast" role="status" aria-live="assertive">Gereed</div>
 
   <script type="module" src="js/main.js"></script>
 </body>
