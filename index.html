@@ -31,11 +31,12 @@
       margin:0; background:radial-gradient(1200px 800px at 20% -10%, #121427 0%, #0a0b12 40%, var(--bg) 80%);
       color:var(--txt); font-family:Inter,system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
-    .app{max-width:1100px; margin:0 auto; padding:16px 16px 84px}
+    .app{max-width:1100px; margin:0 auto; padding:16px 16px calc(84px + env(safe-area-inset-bottom, 0px));}
     header{
       position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(12px);
       background:linear-gradient(180deg, rgba(10,11,18,.9), rgba(10,11,18,.6));
       border-bottom:1px solid rgba(255,255,255,.06);
+      padding-top:env(safe-area-inset-top, 0px);
     }
     .topbar{display:flex; gap:12px; align-items:center; padding:14px 16px}
     .title{font-weight:700; letter-spacing:.2px}
@@ -49,7 +50,8 @@
       display:inline-flex; gap:8px; align-items:center; padding:10px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
     }
-    .tabs{display:flex; gap:8px; padding:10px 16px 14px}
+    .tabs{display:flex; gap:8px; padding:10px 16px 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
     .tab{cursor:pointer; user-select:none}
     .tab[aria-selected="true"]{background:var(--accent); color:#fff; border-color:transparent}
 
@@ -103,11 +105,23 @@
     dialog{border:1px solid rgba(255,255,255,.15); background:var(--card); color:var(--txt); border-radius:16px; padding:16px 16px 12px; width:min(680px, 92vw)}
     dialog::backdrop{background:rgba(0,0,0,.6)}
 
-    .footerbar{position:fixed; bottom:0; left:0; right:0; padding:8px 12px; display:flex; gap:10px; justify-content:center; align-items:center; backdrop-filter: blur(12px) saturate(160%);
+    .footerbar{position:fixed; bottom:0; left:0; right:0; padding:8px calc(12px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) calc(12px + env(safe-area-inset-left, 0px)); display:flex; gap:10px; justify-content:center; align-items:center; backdrop-filter: blur(12px) saturate(160%);
       background:linear-gradient(180deg, rgba(10,11,18,.3), rgba(10,11,18,.7)); border-top:1px solid rgba(255,255,255,.08)}
 
     .hidden{display:none !important}
     .center{display:flex; justify-content:center; align-items:center}
+
+    @media (max-width: 640px){
+      body{font-size:15px;}
+      .topbar{flex-wrap:wrap; gap:10px 12px; padding:12px 16px 10px}
+      .title{font-size:1.05rem}
+      .grow{flex-basis:100%; height:0}
+      .topbar select{max-width:100%}
+      .tabs{padding:4px 16px 10px; margin:0;}
+      .app{padding:12px 16px calc(96px + env(safe-area-inset-bottom, 0px));}
+      .card{padding:12px}
+      dialog{width:min(640px, 96vw);}
+    }
   </style>
 </head>
 <body>
