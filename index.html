@@ -1,247 +1,653 @@
 <!DOCTYPE html>
-<html lang="nl" data-theme="dark">
+<html lang="nl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Motrac • Capacity Compass</title>
-  <meta name="color-scheme" content="dark light">
+  <title>Verlofplanning • Werkplaats</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* v2.2 — Dagklik menu voor uren + redenen; geen palet icoon; tests behouden */
+    :root{
+      --bg:#0b0c10;           /* donker voor OLED/ios-look */
+      --card:#151722;         /* kaart */
+      --card2:#0f1118;        /* sub */
+      --txt:#f5f7fb;          /* tekst licht */
+      --muted:#b7bdd1;        /* secundair */
+      --accent:#0a84ff;       /* iOS-blauw */
+      --accent-2:#30d158;     /* iOS-groen */
+      --warn:#ff9f0a;         /* oranje */
+      --danger:#ff453a;       /* rood */
+      --ok:#34c759;           /* groen */
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      /* reden-kleuren */
+      --r-verlof:#ff453a; --r-ziekte:#ff9f0a; --r-training:#ffd60a; --r-werktelders:#64d2ff; --r-afwezig:#a6a6a6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1200px 800px at 20% -10%, #121427 0%, #0a0b12 40%, var(--bg) 80%);
+      color:var(--txt); font-family:Inter,system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    .app{max-width:1100px; margin:0 auto; padding:16px 16px 84px}
+    header{
+      position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(12px);
+      background:linear-gradient(180deg, rgba(10,11,18,.9), rgba(10,11,18,.6));
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .topbar{display:flex; gap:12px; align-items:center; padding:14px 16px}
+    .title{font-weight:700; letter-spacing:.2px}
+    .grow{flex:1}
+    select, input[type="date"], input[type="text"], input[type="number"], textarea{
+      background:var(--card2); color:var(--txt); border:1px solid rgba(255,255,255,.08);
+      padding:10px 12px; border-radius:12px; outline:none; width:100%;
+    }
+    select:focus, input:focus, textarea:focus{border-color:rgba(10,132,255,.6); box-shadow:0 0 0 6px rgba(10,132,255,.08)}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center; padding:10px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    }
+    .tabs{display:flex; gap:8px; padding:10px 16px 14px}
+    .tab{cursor:pointer; user-select:none}
+    .tab[aria-selected="true"]{background:var(--accent); color:#fff; border-color:transparent}
+
+    .bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.1); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:14px; }
+
+    .grid{display:grid; gap:12px}
+    @media (min-width: 920px){
+      .grid.cols-2{grid-template-columns: 1.1fr .9fr}
+    }
+
+    .stack{display:flex; flex-direction:column; gap:12px}
+    .row{display:flex; gap:10px; align-items:center}
+    .row.wrap{flex-wrap:wrap}
+
+    .table{width:100%; border-collapse:separate; border-spacing:0 8px}
+    .table th{font-weight:600; color:var(--muted); text-align:left; font-size:.9rem; padding:0 8px}
+    .table td{background:var(--card2); border:1px solid rgba(255,255,255,.06); padding:8px; vertical-align:top}
+    .table td:first-child{border-radius:12px 0 0 12px}
+    .table td:last-child{border-radius:0 12px 12px 0}
+
+    .btn{appearance:none; border:0; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600}
+    .btn.primary{background:var(--accent); color:#fff}
+    .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.12); color:var(--txt)}
+    .btn.warn{background:var(--warn); color:#1c1303}
+    .btn.danger{background:var(--danger); color:white}
+
+    .legend{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{border-radius:999px; padding:6px 10px; border:1px solid rgba(255,255,255,.12); font-size:.9rem}
+
+    .mini{font-size:.88rem; color:var(--muted)}
+
+    .rowbar{display:grid; grid-template-columns: 220px repeat(5, 1fr) 120px; gap:8px; align-items:center}
+    @media (max-width: 740px){
+      .rowbar{grid-template-columns: 150px 1fr;}
+      .rowbar .days{grid-column: 1 / -1; display:grid; grid-template-columns: repeat(5, 1fr); gap:8px}
+      .rowbar .weekly{grid-column: 1 / -1}
+    }
+
+    .daycell{background:var(--card2); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px; cursor:pointer}
+    .daycell:hover{outline:1px solid rgba(255,255,255,.15)}
+    .daycell .top{display:flex; justify-content:space-between; align-items:center}
+
+    /* afwezigheidsbalk */
+    .absbar{position:relative; height:8px; background:#0c0e14; border:1px solid rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
+    .segm{height:100%; display:inline-block}
+
+    dialog{border:1px solid rgba(255,255,255,.15); background:var(--card); color:var(--txt); border-radius:16px; padding:16px 16px 12px; width:min(680px, 92vw)}
+    dialog::backdrop{background:rgba(0,0,0,.6)}
+
+    .footerbar{position:fixed; bottom:0; left:0; right:0; padding:8px 12px; display:flex; gap:10px; justify-content:center; align-items:center; backdrop-filter: blur(12px) saturate(160%);
+      background:linear-gradient(180deg, rgba(10,11,18,.3), rgba(10,11,18,.7)); border-top:1px solid rgba(255,255,255,.08)}
+
+    .hidden{display:none !important}
+    .center{display:flex; justify-content:center; align-items:center}
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar" role="banner">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">MT</div>
-        <div class="brand-text">
-          <span class="brand-title">Capacity Compass</span>
-          <span class="brand-sub">Realtime planning cockpit</span>
-        </div>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn ghost icon" id="btn-theme" type="button" aria-label="Schakel naar licht thema">
-          <span class="icon" aria-hidden="true">🌙</span>
-          <span class="label">Licht thema</span>
-        </button>
-        <button class="btn secondary" onclick="openModal('about')">Over</button>
-        <button class="btn" onclick="openDrawer()">Nieuwe taak</button>
-      </div>
-    </header>
-
-    <main class="app-main" role="main">
-      <section class="hero-panels" aria-label="Snelle acties en highlights">
-        <article class="card hero-card">
-          <div class="hero-header">
-            <span class="eyebrow">Dashboard</span>
-            <h1>Capaciteitsplanner</h1>
-            <p>Een kalm overzicht van capaciteit, werkdruk en verlof voor al je vestigingen.</p>
-          </div>
-          <div class="hero-actions">
-            <button class="btn" onclick="setTab('board')">Open planbord</button>
-            <button class="btn secondary" onclick="setTab('table')">Bekijk tabel</button>
-            <button class="btn ghost" onclick="setTab('insights')">Analyseer trends</button>
-          </div>
-        </article>
-        <article class="card hero-card hero-stats">
-          <h2>Datakwaliteit</h2>
-          <p class="sub">Snelle controles op openstaande taken.</p>
-          <dl class="metric-grid">
-            <div>
-              <dt>Datakwaliteit</dt>
-              <dd id="kpi-ok">–</dd>
-            </div>
-            <div>
-              <dt>SLA's risicovol</dt>
-              <dd id="kpi-sla">–</dd>
-            </div>
-            <div>
-              <dt>Open taken</dt>
-              <dd id="kpi-open">–</dd>
-            </div>
-            <div>
-              <dt>Te laat</dt>
-              <dd id="kpi-late">–</dd>
-            </div>
-          </dl>
-          <div class="hero-actions compact">
-            <button class="btn small" onclick="toast('Auto-planning (demo) klaar')">Auto-planning</button>
-            <button class="btn small secondary" onclick="toast('Geëxporteerd')">Export CSV</button>
-          </div>
-        </article>
-        <article class="card hero-card capacity-card">
-          <h2>Capaciteitsmomentopname</h2>
-          <p class="sub">Realtime berekening op basis van filters.</p>
-          <div class="kpi-grid">
-            <div class="kpi"><span class="value" id="kpi-cap">–</span><span class="label">Beschikbare uren</span></div>
-            <div class="kpi"><span class="value" id="kpi-load">–</span><span class="label">Ingepland</span></div>
-            <div class="kpi"><span class="value" id="kpi-util">–</span><span class="label">Benutting</span></div>
-            <div class="kpi"><span class="value" id="kpi-backlog">–</span><span class="label">Backlog</span></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="filters card" aria-labelledby="filters-title">
-        <div class="filters-header">
-          <h2 id="filters-title">Filters</h2>
-          <div class="filter-actions">
-            <button class="btn small ghost" id="btn-reset">Reset</button>
-            <button class="btn small" id="btn-export">Export</button>
-            <button class="btn small secondary" id="btn-import">Import</button>
-          </div>
-        </div>
-        <div class="filters-grid">
-          <label>Vestiging
-            <select id="f-workshop"></select>
-          </label>
-          <label>Week (maandag)
-            <input type="date" id="f-week">
-          </label>
-          <label>Jaar (verlofmatrix)
-            <select id="f-year"></select>
-          </label>
-          <label>Skill
-            <input type="text" id="f-skill" placeholder="bv. 386, 1252, Diagnose">
-          </label>
-        </div>
-        <div class="chip-bar" id="chips" aria-live="polite"></div>
-        <p class="filters-hint">Importeer JSON takenbestanden of maak snel nieuwe taken via het paneel "Nieuwe taak".</p>
-        <input id="file" type="file" accept=".json,.csv,.xlsx" hidden />
-      </section>
-
-      <section class="leave card" aria-labelledby="leave-title">
-        <div class="leave-header">
-          <div>
-            <h2 id="leave-title">Verlofmatrix</h2>
-            <p>Overzicht van ingevoerde afwezigheid per collega. Pas uren aan in de cellen en kies een reden.</p>
-          </div>
-          <div class="legend" aria-hidden="true">
-            <span><span class="legend-swatch leave-swatch--vakantie"></span>Vakantie</span>
-            <span><span class="legend-swatch leave-swatch--verlof"></span>Verlof</span>
-            <span><span class="legend-swatch leave-swatch--ziek"></span>Ziek</span>
-            <span><span class="legend-swatch leave-swatch--training"></span>Training</span>
-            <span><span class="legend-swatch leave-swatch--thuis"></span>Thuiswerk</span>
-            <span><span class="legend-swatch leave-swatch--feestdag"></span>Feestdag</span>
-            <span><span class="legend-swatch leave-swatch--deeltijd"></span>Deeltijd</span>
-          </div>
-        </div>
-        <div class="leave-matrix-wrap">
-          <div id="leave-matrix" role="group" aria-describedby="leave-caption"></div>
-        </div>
-        <p id="leave-caption" class="leave-caption">Lege cellen betekenen volledige beschikbaarheid. Vul het aantal afwezige uren in en kies een reden.</p>
-      </section>
-
-      <section class="planning card" aria-label="Planning weergaven">
-        <div class="tablist" role="tablist">
-          <button type="button" id="tab-board" class="tab active" role="tab" aria-selected="true" aria-controls="view-board" data-tab="board" onclick="setTab('board')">Board</button>
-          <button type="button" id="tab-table" class="tab" role="tab" aria-selected="false" aria-controls="view-table" data-tab="table" onclick="setTab('table')">Tabel</button>
-          <button type="button" id="tab-insights" class="tab" role="tab" aria-selected="false" aria-controls="view-insights" data-tab="insights" onclick="setTab('insights')">Insights</button>
-        </div>
-        <section id="view-board" role="tabpanel" aria-labelledby="tab-board">
-          <div class="board-grid" id="board-grid"></div>
-        </section>
-        <section id="view-table" role="tabpanel" aria-labelledby="tab-table" hidden>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th>Taak</th>
-                  <th>Vestiging</th>
-                  <th>Skill</th>
-                  <th>Uren</th>
-                  <th>Deadline</th>
-                  <th>Prioriteit</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
-          </div>
-        </section>
-        <section id="view-insights" role="tabpanel" aria-labelledby="tab-insights" hidden>
-          <div class="insights-grid">
-            <article class="card inset">
-              <div class="card-top">
-                <span class="badge">Weekbalans</span>
-                <span class="badge hours">320h cap</span>
-              </div>
-              <h3>Capaciteit vs. Werkdruk</h3>
-              <p class="sub">Snelle indicatie per vestiging/week. Kleur op basis van overschrijding.</p>
-              <div class="capacity-chart" id="capacity-chart">
-                <div class="capacity-chart__empty">Grafiek wordt geladen…</div>
-              </div>
-              <div class="capacity-chart__legend" aria-hidden="true">
-                <span class="legend-dot legend-dot--capacity"></span> Capaciteit
-                <span class="legend-dot legend-dot--workload"></span> Werkaanbod
-              </div>
-            </article>
-            <article class="card inset">
-              <div class="card-top">
-                <span class="badge">SLA's</span>
-              </div>
-              <h3>Naderende deadlines</h3>
-              <p class="sub">Taken binnen 72 uur met norm &gt; 8 uur.</p>
-              <div class="row">
-                <span class="badge skill">Diagnose</span>
-                <button class="btn small secondary">Open lijst</button>
-              </div>
-            </article>
-          </div>
-        </section>
-      </section>
-    </main>
-  </div>
-
-  <aside class="drawer" id="drawer" aria-hidden="true">
-    <header>
-      <h3>Nieuwe taak</h3>
-      <button class="btn small secondary" onclick="closeDrawer()">Sluiten</button>
-    </header>
-    <div class="form-grid">
-      <label>Titel<input id="t-title" placeholder="bv. Groene Stroom 386-setup"></label>
-      <label>Vestiging
-        <select id="t-ws"></select>
-      </label>
-      <label>Skill<input id="t-skill" placeholder="bv. 386, 1252, Diagnose"></label>
-      <label>Uren<input id="t-hours" type="number" min="1" step="1" value="8"></label>
-      <label>Deadline<input id="t-due" type="date"></label>
-      <label>Prioriteit
-        <select id="t-prio">
-          <option>Normaal</option>
-          <option>Hoog</option>
-          <option>Laag</option>
-        </select>
-      </label>
-      <label style="grid-column:1/-1">Status
-        <select id="t-status">
-          <option>Open</option>
-          <option>In uitvoering</option>
-          <option>Gereed</option>
-          <option>Geblokkeerd</option>
-        </select>
-      </label>
+  <header>
+    <div class="topbar">
+      <div class="title">Verlofplanning • Werkplaats</div>
+      <div class="grow"></div>
+      <select id="werkplaatsSelect" title="Werkplaats kiezen">
+        <option>Almere</option>
+        <option>Venlo</option>
+        <option>Zwijndrecht</option>
+      </select>
+      <nav class="tabs">
+        <button class="pill tab" data-route="#planning" aria-selected="true">Planning</button>
+        <button class="pill tab" data-route="#team">Team</button>
+        <button class="pill tab" data-route="#rapport">Rapport</button>
+      </nav>
     </div>
-    <div class="actions">
-      <button class="btn" onclick="saveTask()">Opslaan</button>
-      <button class="btn secondary" onclick="clearTask()">Leegmaken</button>
-    </div>
-  </aside>
+  </header>
 
-  <div class="modal" id="modal-about" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true" hidden onclick="if(event.target===this) closeModal('about')">
-    <div class="modal-box">
-      <h3 id="about-title">Over deze cockpit</h3>
-      <p>High-design dashboard met focus op rust, overzicht en snelle acties voor planners.</p>
-      <div class="modal-actions">
-        <button class="btn small" onclick="closeModal('about')">Prima</button>
-        <button class="btn small secondary" onclick="toast('Documentatie geopend')">Documentatie</button>
-      </div>
+  <main class="app stack" id="app" data-testid="app-root"></main>
+
+  <div class="footerbar">
+    <div class="legend">
+      <span class="chip"><span class="segm" style="background:var(--r-verlof); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Verlof</span>
+      <span class="chip"><span class="segm" style="background:var(--r-ziekte); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Ziekte</span>
+      <span class="chip"><span class="segm" style="background:var(--r-training); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Training</span>
+      <span class="chip"><span class="segm" style="background:var(--r-werktelders); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Werkt elders</span>
+      <span class="chip"><span class="segm" style="background:var(--r-afwezig); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Overig</span>
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="assertive">Gereed</div>
+  <!-- Dag-menu: uren + redenen -->
+  <dialog id="dayMenu">
+    <form method="dialog" class="stack">
+      <h3 id="dayTitle" style="margin:0 0 6px">Dag aanpassen</h3>
+      <div class="row wrap">
+        <div>
+          <label class="mini">Afwezig (uren)</label>
+          <input id="dayHours" type="number" min="0" step="0.5" value="0" style="max-width:120px">
+        </div>
+        <div class="mini" id="dayPresence" style="align-self:flex-end">Aanwezig: 0 u</div>
+      </div>
+      <div id="reasonsList" class="stack"></div>
+      <menu class="row" style="justify-content:flex-end">
+        <button class="btn ghost" value="cancel">Annuleren</button>
+        <button class="btn primary" value="ok">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
 
-  <script type="module" src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script>
+    // ------ Data & Helpers ------
+    const ROLES = {
+      'Technicus': {productive:1},
+      'Constructie': {productive:1},
+      'Expeditie': {productive:1},
+      'Bala': {productive:1},
+      'Meewerkend voorman': {productive:.5},
+      'Teamleider': {productive:0},
+      'Manager': {productive:0},
+      'WVB': {productive:0},
+    };
+
+    const REASONS = ['verlof','ziekte','training','werktelders','afwezig'];
+    const REASON_COLORS = {verlof:'var(--r-verlof)', ziekte:'var(--r-ziekte)', training:'var(--r-training)', werktelders:'var(--r-werktelders)', afwezig:'var(--r-afwezig)'};
+
+    const STORAGE_KEY = 'verlofplanner.v2.2';
+
+    const defaultState = () => ({
+      werkplaats: 'Almere',
+      employees: [
+        {id:id(), naam:'Alex', rol:'Technicus', werkplaats:'Almere', urenPerDag:8},
+        {id:id(), naam:'Bianca', rol:'Teamleider', werkplaats:'Almere', urenPerDag:8},
+        {id:id(), naam:'Chris', rol:'Meewerkend voorman', werkplaats:'Venlo', urenPerDag:8},
+        {id:id(), naam:'Dana', rol:'Expeditie', werkplaats:'Zwijndrecht', urenPerDag:8},
+      ],
+      // absences: key = `${empId}|YYYY-MM-DD` => {hours:Number, reasons:Object, status:String}
+      absences: {}
+    });
+
+    let state = load();
+
+    function id(){return Math.random().toString(36).slice(2,9)}
+    function save(){localStorage.setItem(STORAGE_KEY, JSON.stringify(state))}
+    function load(){
+      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState() }catch(e){ return defaultState() }
+    }
+
+    function isoMonday(d){
+      const x = new Date(d); const day = (x.getDay()+6)%7; // 0=Mon
+      x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x;
+    }
+    // Timezone-safe local YYYY-MM-DD
+    function fmtDate(d){ const x=new Date(d); x.setHours(0,0,0,0); const y=x.getFullYear(); const m=String(x.getMonth()+1).padStart(2,'0'); const dd=String(x.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}` }
+    function addDays(d,n){const x = new Date(d); x.setDate(x.getDate()+n); return x}
+
+    function weekDays(base){
+      const m = isoMonday(base); const days=[]; for(let i=0;i<5;i++){days.push(addDays(m,i))} return days;
+    }
+
+    function key(empId,ds){return empId+'|'+ds}
+    function getAbs(empId, dateStr){return state.absences[key(empId,dateStr)]}
+    function setAbs(empId, dateStr, rec){
+      // Normaliseer & backward compat: 0 = volledige werkdag aanwezig
+      const base = state.employees.find(e=>e.id===empId)?.urenPerDag || 8;
+      const r = {...(getAbs(empId,dateStr)||{}), ...(rec||{})};
+      if(typeof r.hours!=='number') r.hours = 0;
+      if(!r.reasons) r.reasons = {};
+      r.status = (r.hours>0 ? 'afwezig' : 'beschikbaar');
+      // schoonmaken: verwijder 0's en cap som
+      let sum=0; for(const k in r.reasons){ r.reasons[k] = +r.reasons[k]||0; if(r.reasons[k]<=0) delete r.reasons[k]; else sum+=r.reasons[k]; }
+      if(sum>r.hours && r.hours>0){ const f=r.hours/(sum||1); for(const k in r.reasons){ r.reasons[k] = round1(r.reasons[k]*f); } }
+      if(r.hours>0 || Object.keys(r.reasons).length){ state.absences[key(empId,dateStr)] = r; } else { delete state.absences[key(empId,dateStr)]; }
+      save();
+    }
+
+    function employeesOf(werkplaats){return state.employees.filter(e=>e.werkplaats===werkplaats)}
+
+    // ------ Router & static binds ------
+    const app = document.getElementById('app');
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t=>t.addEventListener('click',()=>{location.hash=t.dataset.route}))
+    window.addEventListener('hashchange', render)
+
+    const wpSelect = document.getElementById('werkplaatsSelect');
+    wpSelect.value = state.werkplaats;
+    wpSelect.addEventListener('change', (e)=>{ state.werkplaats = e.target.value; save(); render(); });
+
+    // ------ Views ------
+    let currentWeekBase = new Date();
+
+    function viewPlanning(){
+      const wp = state.werkplaats; const emps = employeesOf(wp);
+      const days = weekDays(currentWeekBase);
+
+      const headerRow = `
+        <div class="row wrap" style="justify-content:space-between">
+          <div class="bar">
+            <button class="btn ghost" id="prevWeek" data-testid="btn-prev">← Vorige</button>
+            <div class="pill">Week ${isoWeekNumber(days[0])} · ${fmtRange(days)}</div>
+            <button class="btn ghost" id="nextWeek" data-testid="btn-next">Volgende →</button>
+          </div>
+          <div class="bar">
+            <button class="btn ghost" id="exportBtn">Export</button>
+            <button class="btn warn" id="importBtn">Import</button>
+          </div>
+        </div>
+      `;
+
+      const table = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Medewerker</th>
+              ${days.map(d=>`<th>${dayName(d)}<div class="mini">${d.getDate()}-${d.getMonth()+1}</div></th>`).join('')}
+              <th>Beschikbare uren</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${emps.map(emp=>rowWeek(emp, days)).join('')}
+          </tbody>
+        </table>
+      `;
+
+      const totals = calcTotals(days);
+      const totalsCard = `
+        <div class="card row wrap" style="justify-content:space-between; align-items:center">
+          <div class="mini">Totaal uren (week) — ${wp}</div>
+          <div class="legend">
+            <span class="chip">Productief: <b>${num(totals.productive)}</b> u</span>
+            <span class="chip">Indirect: <b>${num(totals.indirect)}</b> u</span>
+            <span class="chip">Som: <b>${num(totals.productive+totals.indirect)}</b> u</span>
+          </div>
+        </div>`;
+
+      return `
+        <section class="stack">
+          ${headerRow}
+          <div class="card">${table}</div>
+          ${totalsCard}
+        </section>
+      `;
+    }
+
+    function renderReasonBar(rec, base){
+      const h = +rec?.hours || 0; if(h<=0) return '';
+      const segs=[]; let used=0;
+      for(const r of REASONS){ const v=Math.max(0,+((rec.reasons||{})[r]||0)); if(v>0){ used+=v; const w=(v/base)*100; segs.push(`<span class="segm" style="width:${w}%; background:${REASON_COLORS[r]}"></span>`); } }
+      if(used<h){ const w=((h-used)/base)*100; segs.push(`<span class="segm" style="width:${w}%; background:var(--r-afwezig)"></span>`); }
+      return segs.join('');
+    }
+
+    function rowWeek(emp, days){
+      const cells = days.map(d=>{
+        const dateStr = fmtDate(d);
+        const rec = getAbs(emp.id, dateStr) || {hours:0, reasons:{}};
+        const hAbs = +rec.hours || 0; const present = Math.max(0, emp.urenPerDag - hAbs);
+        const bar = renderReasonBar(rec, emp.urenPerDag);
+        return `<div class="daycell" data-emp="${emp.id}" data-date="${dateStr}" data-base="${emp.urenPerDag}">
+          <div class="mini" style="margin-bottom:6px">Afwezig: <b>${num(hAbs)}</b> u · Anw.: <b>${num(present)}</b> u</div>
+          <div class="absbar">${bar}</div>
+        </div>`
+      }).join('');
+
+      const avail = availableHours(emp, days);
+      return `
+        <tr>
+          <td style="background:transparent; border:0; padding:0 8px 0 0">
+            <div class="card" style="padding:10px 12px">
+              <div style="font-weight:600">${emp.naam}</div>
+              <div class="mini">${emp.rol} · ${emp.urenPerDag} u/dag</div>
+            </div>
+          </td>
+          <td colspan="5">
+            <div class="days rowbar">
+              <div style="display:none"></div>
+              ${cells}
+              <div class="weekly mini">Beschikbaar: <b>${num(avail)}</b> u</div>
+            </div>
+          </td>
+          <td class="mini" style="text-align:right">${num(avail)} u</td>
+        </tr>
+      `;
+    }
+
+    function viewTeam(){
+      const wp = state.werkplaats;
+      const emps = employeesOf(wp);
+      const roles = Object.keys(ROLES);
+      return `
+        <section class="grid cols-2">
+          <div class="stack">
+            <div class="row wrap" style="justify-content:space-between; align-items:center">
+              <h3>Team · ${wp}</h3>
+              <button class="btn primary" id="addEmp">+ Medewerker</button>
+            </div>
+            <div class="card">
+              <table class="table">
+                <thead>
+                  <tr><th>Naam</th><th>Rol</th><th>Daguren</th><th></th></tr>
+                </thead>
+                <tbody>
+                  ${emps.map(e=>`
+                    <tr>
+                      <td><input data-emp="${e.id}" data-field="naam" value="${e.naam}"></td>
+                      <td>
+                        <select data-emp="${e.id}" data-field="rol">${roles.map(r=>`<option ${e.rol===r?'selected':''}>${r}</option>`).join('')}</select>
+                      </td>
+                      <td style="max-width:120px"><input type="number" min="1" max="12" step="0.5" data-emp="${e.id}" data-field="urenPerDag" value="${e.urenPerDag}"></td>
+                      <td style="width:120px; text-align:right">
+                        <button class="btn danger" data-action="delEmp" data-id="${e.id}">Verwijder</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="stack">
+            <h3>Data</h3>
+            <div class="card stack">
+              <div class="mini">Export/Import (JSON)</div>
+              <div class="row wrap">
+                <button class="btn ghost" id="exportBtn2">Export</button>
+                <button class="btn warn" id="importBtn2">Import</button>
+                <button class="btn" id="resetBtn">Reset demo</button>
+              </div>
+              <textarea id="ioArea" rows="10" placeholder="JSON hier…"></textarea>
+            </div>
+            <div class="card stack">
+              <h4>Legenda productiviteit</h4>
+              <div class="legend">
+                ${Object.entries(ROLES).map(([r,{productive}])=>`<span class="chip">${r}: ${(productive*100)}% productief</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    let chart; // Chart.js instance
+    function viewRapport(){
+      const wp = state.werkplaats;
+      const year = new Date().getFullYear();
+      const weeks = Array.from({length:isoWeeksInYear(year)},(_,i)=>i+1);
+      const series = weeks.map(w=>calcWeekTotals(wp, year, w));
+      const prod = series.map(s=>s.productive);
+      const ind = series.map(s=>s.indirect);
+      const canvas = `<canvas id="chart" height="120"></canvas>`;
+      const head = `
+        <div class="row wrap" style="justify-content:space-between; align-items:center">
+          <h3>Beschikbare uren per week · ${wp} · ${year}</h3>
+          <button class="btn ghost" id="rebuildChart">Herladen</button>
+        </div>`;
+      const summary = `
+        <div class="card legend">
+          <span class="chip">Gem. productief: <b>${num(avg(prod))}</b> u/week</span>
+          <span class="chip">Gem. indirect: <b>${num(avg(ind))}</b> u/week</span>
+          <span class="chip">Totaal gemiddeld: <b>${num(avg(prod)+avg(ind))}</b> u/week</span>
+        </div>`;
+      // Build after paint
+      requestAnimationFrame(()=>buildChart(weeks, prod, ind));
+      return `<section class="stack">${head}<div class="card">${canvas}</div>${summary}</section>`
+    }
+
+    function buildChart(weeks, prod, ind){
+      const ctx = document.getElementById('chart');
+      if(!ctx) return;
+      if(chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type:'line',
+        data:{ labels:weeks, datasets:[ {label:'Productief (u)', data:prod, tension:.35}, {label:'Indirect (u)', data:ind, tension:.35} ] },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ labels:{ color:'white' } } },
+          scales:{ x:{ ticks:{ color:'#cbd5e1' }, grid:{ color:'rgba(255,255,255,.08)'}}, y:{ ticks:{ color:'#cbd5e1' }, grid:{ color:'rgba(255,255,255,.08)'}, beginAtZero:true}}
+        }
+      })
+    }
+
+    // ------ Calculations ------
+    function availableHours(emp, days){
+      let total = 0;
+      for(const d of days){
+        const dateStr = fmtDate(d);
+        const base = emp.urenPerDag;
+        const rec = getAbs(emp.id, dateStr);
+        const blocked = rec ? (rec.hours || base) : 0; // if absence recorded without hours => assume full day
+        const isBusy = rec ? (typeof rec.hours==='number' ? rec.hours>0 : (rec.status!=='beschikbaar')) : false;
+        total += Math.max(0, base - (isBusy ? blocked : 0));
+      }
+      return total;
+    }
+
+    function calcTotals(days){
+      const emps = employeesOf(state.werkplaats);
+      let prod=0, ind=0;
+      for(const e of emps){
+        const avail = availableHours(e, days);
+        const p = ROLES[e.rol]?.productive ?? 0;
+        prod += avail * p;
+        ind += avail * (1 - p);
+      }
+      return {productive:prod, indirect:ind};
+    }
+
+    function calcWeekTotals(wp, year, isoWeek){
+      const start = mondayOfIsoWeek(isoWeek, year);
+      const days = weekDays(start);
+      const prevWp = state.werkplaats; state.werkplaats = wp; const t = calcTotals(days); state.werkplaats = prevWp; return t;
+    }
+
+    // ISO helpers (tested below)
+    function isoWeekNumber(date){
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate()+4-dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+    function mondayOfIsoWeek(week, year){
+      const simple = new Date(year,0,1 + (week-1)*7);
+      const dow = simple.getDay();
+      const ISOweekStart = new Date(simple);
+      let diff = (dow<=4 ? 1 : 8) - dow; // move to Monday
+      ISOweekStart.setDate(simple.getDate() + diff);
+      ISOweekStart.setHours(0,0,0,0);
+      return ISOweekStart;
+    }
+    function isoWeeksInYear(year){
+      let w = isoWeekNumber(new Date(year,11,31));
+      if(w===1){ w = isoWeekNumber(new Date(year,11,28)); }
+      return w;
+    }
+
+    function fmtRange(days){
+      const a=days[0], b=days[days.length-1];
+      return `${a.getDate()}-${a.getMonth()+1} t/m ${b.getDate()}-${b.getMonth()+1}`
+    }
+    function dayName(d){
+      const names=['Ma','Di','Wo','Do','Vr'];
+      const idx=(d.getDay()+6)%7; // 0=Mon..6=Sun
+      return names[idx]||'';
+    }
+    function num(n){return (Math.round(n*10)/10).toLocaleString('nl-NL')}
+    function avg(a){return a.length? a.reduce((s,x)=>s+x,0)/a.length : 0}
+    function round1(n){return Math.round(n*10)/10}
+
+    // ------ Interactions ------
+    app.addEventListener('click', (e)=>{
+      const t = e.target;
+      if(t.id==='prevWeek'){ currentWeekBase = addDays(isoMonday(currentWeekBase), -7); render(); }
+      else if(t.id==='nextWeek'){ currentWeekBase = addDays(isoMonday(currentWeekBase), 7); render(); }
+      else if(t.id==='exportBtn'){ const data = JSON.stringify(state, null, 2); download(`verlofplanner_${Date.now()}.json`, data); }
+      else if(t.id==='importBtn'){ doImportFile(); }
+      else if(t.id==='exportBtn2'){ const io=document.getElementById('ioArea'); if(io) io.value=JSON.stringify(state, null, 2); }
+      else if(t.id==='importBtn2'){ const io=document.getElementById('ioArea'); if(io){ try{ state=JSON.parse(io.value); save(); render(); }catch(err){ alert('JSON ongeldig'); } } }
+      else if(t.id==='resetBtn'){ localStorage.removeItem(STORAGE_KEY); state = defaultState(); save(); render(); }
+      else if(t.id==='addEmp'){ state.employees.push({id:id(), naam:'Nieuwe medewerker', rol:'Technicus', werkplaats:state.werkplaats, urenPerDag:8}); save(); render(); }
+      else if(t.id==='rebuildChart'){ render(); }
+      else {
+        const cell = t.closest('.daycell');
+        if(cell){ openDayMenu(cell); }
+      }
+    });
+
+    app.addEventListener('change', (e)=>{
+      const t = e.target;
+      if(t.matches('[data-field]')){
+        const emp = state.employees.find(x=>x.id===t.dataset.emp); if(!emp) return;
+        const field = t.dataset.field; let val = t.value;
+        if(field==='urenPerDag') val = +val || 8; emp[field] = val; save();
+      }
+    });
+
+    // Day menu logic
+    const dayMenu = document.getElementById('dayMenu');
+    const dayHoursEl = document.getElementById('dayHours');
+    const dayTitleEl = document.getElementById('dayTitle');
+    const dayPresenceEl = document.getElementById('dayPresence');
+    const reasonsListEl = document.getElementById('reasonsList');
+
+    function openDayMenu(cell){
+      const empId = cell.dataset.emp; const ds = cell.dataset.date; const base = +cell.dataset.base;
+      const emp = state.employees.find(e=>e.id===empId);
+      const rec = getAbs(empId, ds) || {hours:0, reasons:{}};
+      dayMenu.dataset.empId = empId; dayMenu.dataset.dateStr = ds; dayMenu.dataset.base = String(base);
+      dayTitleEl.textContent = `${emp?.naam||'Medewerker'} • ${ds}`;
+      dayHoursEl.max = base; dayHoursEl.value = rec.hours || 0; updatePresence();
+      reasonsListEl.innerHTML = '';
+      for(const r of REASONS){
+        const row = document.createElement('div'); row.className='row';
+        row.innerHTML = `<span style="display:inline-block; width:16px; height:16px; border-radius:4px; background:${REASON_COLORS[r]}"></span>
+          <span style="width:120px; color:var(--muted); font-size:.9rem; text-transform:capitalize">${r}</span>
+          <input type="number" min="0" step="0.5" data-reason="${r}" value="${rec.reasons?.[r]||0}" style="max-width:100px">`;
+        reasonsListEl.appendChild(row);
+      }
+      reasonsListEl.addEventListener('input', onReasonsInput, {once:true});
+      if(typeof dayMenu.showModal==='function') dayMenu.showModal(); else dayMenu.setAttribute('open','true');
+    }
+
+    function onReasonsInput(e){
+      reasonsListEl.addEventListener('input', (ev)=>{ // keep listening after once bootstrap
+        const base = +dayMenu.dataset.base; const hours = +dayHoursEl.value || 0;
+        // Cap total reasons to selected hours
+        const inputs = [...reasonsListEl.querySelectorAll('input[data-reason]')];
+        let total = 0; inputs.forEach(i=> total += (+i.value||0));
+        if(total>hours){ const f = hours/(total||1); inputs.forEach(i=> i.value = String(round1((+i.value||0)*f))); }
+      });
+      dayHoursEl.addEventListener('input', ()=>{
+        const base = +dayMenu.dataset.base; const hours = +dayHoursEl.value || 0; dayHoursEl.value = Math.max(0, Math.min(base, hours)); updatePresence();
+        // also cap reasons to hours
+        const inputs = [...reasonsListEl.querySelectorAll('input[data-reason]')]; let total=0; inputs.forEach(i=> total += (+i.value||0));
+        if(total>hours){ const f=hours/(total||1); inputs.forEach(i=> i.value = String(round1((+i.value||0)*f))); }
+      });
+    }
+
+    function updatePresence(){ const base = +dayMenu.dataset.base || 8; const hours = +dayHoursEl.value || 0; dayPresenceEl.textContent = `Aanwezig: ${num(Math.max(0, base-hours))} u`; }
+
+    dayMenu.addEventListener('close', ()=>{
+      if(dayMenu.returnValue!=='ok') return;
+      const empId = dayMenu.dataset.empId; const ds = dayMenu.dataset.dateStr; const base = +dayMenu.dataset.base;
+      const hours = +dayHoursEl.value || 0;
+      const inputs = [...reasonsListEl.querySelectorAll('input[data-reason]')];
+      const reasons = {}; let total=0; inputs.forEach(i=>{ const v=+i.value||0; if(v>0){ reasons[i.dataset.reason]=v; total+=v; }});
+      // Cap reasons to hours
+      if(total>hours){ const f=hours/(total||1); for(const k in reasons){ reasons[k] = round1(reasons[k]*f); } }
+      setAbs(empId, ds, {hours, reasons});
+      render();
+    });
+
+    // Utilities
+    function download(filename, text){
+      const a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(text); a.download=filename; a.click();
+    }
+    function uploadJSON(){
+      return new Promise((res,rej)=>{
+        const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
+        inp.onchange=()=>{
+          const file=inp.files[0]; if(!file) return rej(new Error('Geen bestand'));
+          const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>rej(fr.error); fr.readAsText(file);
+        };
+        inp.click();
+      })
+    }
+
+    // ------ Render router ------
+    function render(){
+      const route = location.hash || '#planning';
+      document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', (t.dataset.route===route)?'true':'false'))
+      if(route==="#team"){ app.innerHTML = viewTeam(); return; }
+      if(route==="#rapport"){ app.innerHTML = viewRapport(); return; }
+      app.innerHTML = viewPlanning();
+    }
+
+    // ---------- Test suite (console) ----------
+    function assert(name, cond){ if(!cond){ console.error('❌ Test faalde:', name); throw new Error('Test: '+name); } else { console.log('✅', name); } }
+    function runTests(){
+      const __backup = JSON.parse(JSON.stringify(state));
+      try{
+        // ISO week core
+        assert('isoWeekNumber(2020-12-31) == 53', isoWeekNumber(new Date('2020-12-31')) === 53);
+        assert('isoWeeksInYear(2015) == 53', isoWeeksInYear(2015) === 53);
+        assert('isoWeeksInYear(2020) == 53', isoWeeksInYear(2020) === 53);
+        assert('isoWeeksInYear(2021) == 52', isoWeeksInYear(2021) === 52);
+        assert('mondayOfIsoWeek(53,2020) == 2020-12-28', fmtDate(mondayOfIsoWeek(53, 2020)) === '2020-12-28');
+        const m = mondayOfIsoWeek(1, 2021); assert('mondayOfIsoWeek returns Monday', m.getDay()===1);
+
+        // Availability math
+        const emp={id:'t1', urenPerDag:8, rol:'Technicus'}; state.absences={};
+        let d0=isoMonday(new Date('2024-01-03')); const days=weekDays(d0);
+        assert('availableHours 40h baseline', availableHours(emp, days)===40);
+        setAbs('t1', fmtDate(days[0]), {status:'verlof', hours:8});
+        assert('availableHours 32h with full-day absence', availableHours(emp, days)===32);
+        // independent half-day test
+        state.absences={};
+        setAbs('t1', fmtDate(days[1]), {status:'training', hours:4});
+        assert('availableHours 36h with half-day absence', availableHours(emp, days)===36);
+        // cumulative test
+        setAbs('t1', fmtDate(days[0]), {status:'verlof', hours:8});
+        assert('availableHours 28h with full-day+half-day', availableHours(emp, days)===28);
+
+        // Role productivity split
+        state.absences={};
+        state.employees=[{id:'m', naam:'Mees', rol:'Meewerkend voorman', werkplaats:state.werkplaats, urenPerDag:8}];
+        const days2=weekDays(isoMonday(new Date('2024-05-15')));
+        const totals=calcTotals(days2);
+        assert('calcTotals voorman productief 20h', Math.abs(totals.productive-20)<1e-9);
+        assert('calcTotals voorman indirect 20h', Math.abs(totals.indirect-20)<1e-9);
+
+        console.log('🧪 Alle tests geslaagd.');
+      } finally {
+        state = __backup; save();
+      }
+    }
+
+    // boot
+    try { runTests(); } catch(e) { console.warn('Tests melden een probleem:', e.message); }
+    render();
+  </script>
 </body>
 </html>
