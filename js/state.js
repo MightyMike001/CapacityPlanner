@@ -1,238 +1,183 @@
-export const state = {
-  workshops: [
-    { id: 1, name: "Almere" },
-    { id: 2, name: "Venlo" },
-    { id: 3, name: "Zwijndrecht" },
-  ],
-  tasks: [
-    { id: "O-10001", title: "Groene Stroom: 386-setup", workshop_id: 1, skill: "386", hours: 12, due_date: "2025-10-10", priority: "Hoog", status: "Open" },
-    { id: "O-10002", title: "QC Reachtruck 1252", workshop_id: 1, skill: "1252", hours: 8, due_date: "2025-10-14", priority: "Normaal", status: "Open" },
-    { id: "O-10003", title: "Batterij wissel", workshop_id: 2, skill: "Elektrisch", hours: 6, due_date: "2025-10-11", priority: "Hoog", status: "Open" },
-    { id: "O-10004", title: "Demovloot klaarzetten", workshop_id: 3, skill: "Diagnose", hours: 10, due_date: "2025-10-09", priority: "Laag", status: "In uitvoering" },
-  ],
-  filters: { workshop_id: "", week: "", skill: "" },
-  tab: "board",
-  tasksVersion: 0,
-  capacityByWorkshop: {
-    1: 120,
-    2: 110,
-    3: 90,
-  },
-  defaultCapacity: 320,
-  leaveMatrix: {
-    years: [2024, 2025],
-    employees: [
-      {
-        name: "Emma Vos",
-        role: "Planner Noord",
-        team: "Service Noord",
-        workdayHours: 8,
-        entries: {
-          "2024-02-16": { code: "T", type: "training", hours: 4 },
-          "2024-08-05": { code: "V", type: "vakantie" },
-          "2024-08-06": { code: "V", type: "vakantie" },
-          "2024-08-07": { code: "V", type: "vakantie" },
-          "2024-12-27": { code: "TW", type: "thuis" },
-          "2025-01-02": { code: "Z", type: "ziek" },
-          "2025-07-01": { code: "V", type: "vakantie" },
-          "2025-07-02": { code: "V", type: "vakantie" },
-          "2025-07-03": { code: "V", type: "vakantie" },
-          "2025-07-04": { code: "V", type: "vakantie" },
-          "2025-07-05": { code: "FD", type: "feestdag" },
-          "2025-07-06": { code: "FD", type: "feestdag" },
-          "2025-07-15": { code: "V", type: "vakantie" },
-          "2025-07-16": { code: "V", type: "vakantie" },
-          "2025-07-17": { code: "V", type: "vakantie" },
-          "2025-07-18": { code: "V", type: "vakantie" },
-          "2025-07-19": { code: "FD", type: "feestdag" },
-          "2025-07-20": { code: "FD", type: "feestdag" },
-          "2025-07-22": { code: "TW", type: "thuis" },
-          "2025-07-23": { code: "TW", type: "thuis" },
-          "2025-12-24": { code: "V", type: "vakantie" },
-          "2025-12-31": { code: "V", type: "vakantie" },
-        },
-      },
-      {
-        name: "Saskia Janssen",
-        role: "Planner Zuid",
-        team: "Service Zuid",
-        workdayHours: 8,
-        entries: {
-          "2024-04-29": { code: "V", type: "vakantie" },
-          "2024-04-30": { code: "V", type: "vakantie" },
-          "2024-05-01": { code: "V", type: "vakantie" },
-          "2024-10-10": { code: "L", type: "verlof" },
-          "2025-03-17": { code: "T", type: "training", label: "Planner summit" },
-          "2025-03-18": { code: "T", type: "training" },
-          "2025-07-08": { code: "V", type: "vakantie" },
-          "2025-07-09": { code: "V", type: "vakantie" },
-          "2025-07-10": { code: "V", type: "vakantie" },
-          "2025-07-11": { code: "V", type: "vakantie" },
-          "2025-12-27": { code: "FD", type: "feestdag" },
-        },
-      },
-      {
-        name: "Daan Vermeer",
-        role: "Field Service",
-        team: "Service Oost",
-        workdayHours: 8,
-        entries: {
-          "2024-02-05": { code: "T", type: "training" },
-          "2024-02-06": { code: "T", type: "training" },
-          "2024-09-23": { code: "TW", type: "thuis" },
-          "2024-09-24": { code: "TW", type: "thuis" },
-          "2025-04-02": { code: "FD", type: "feestdag", label: "Regiovrije dag" },
-          "2025-04-03": { code: "FD", type: "feestdag" },
-          "2025-07-03": { code: "T", type: "training", label: "NEN3140 hercertificering" },
-          "2025-07-04": { code: "T", type: "training" },
-          "2025-07-09": { code: "TW", type: "thuis", label: "Thuiswerk" },
-          "2025-07-10": { code: "TW", type: "thuis" },
-          "2025-12-27": { code: "V", type: "vakantie" },
-        },
-      },
-      {
-        name: "Noor Willems",
-        role: "Planner Zuid",
-        team: "Service Zuid",
-        workdayHours: 8,
-        entries: {
-          "2024-06-17": { code: "DZ", type: "deeltijd", hours: 4 },
-          "2024-09-06": { code: "L", type: "verlof" },
-          "2025-02-10": { code: "TW", type: "thuis" },
-          "2025-05-27": { code: "V", type: "vakantie" },
-          "2025-05-28": { code: "V", type: "vakantie" },
-          "2025-07-15": { code: "V", type: "vakantie" },
-          "2025-07-16": { code: "V", type: "vakantie" },
-          "2025-07-17": { code: "V", type: "vakantie" },
-          "2025-07-18": { code: "V", type: "vakantie" },
-          "2025-07-24": { code: "L", type: "verlof", label: "Lang weekend" },
-          "2025-07-25": { code: "L", type: "verlof" },
-        },
-      },
-      {
-        name: "Bram de Ruiter",
-        role: "Technisch Specialist",
-        team: "Diagnose",
-        workdayHours: 6,
-        entries: {
-          "2024-01-08": { code: "DZ", type: "deeltijd", hours: 3 },
-          "2024-01-15": { code: "DZ", type: "deeltijd" },
-          "2024-05-14": { code: "TW", type: "thuis" },
-          "2024-12-03": { code: "DZ", type: "deeltijd" },
-          "2025-03-04": { code: "TW", type: "thuis" },
-          "2025-06-03": { code: "DZ", type: "deeltijd" },
-          "2025-07-07": { code: "DZ", type: "deeltijd", label: "Deeltijd (ouders)", hours: 3 },
-          "2025-07-14": { code: "DZ", type: "deeltijd" },
-          "2025-07-21": { code: "DZ", type: "deeltijd" },
-          "2025-07-28": { code: "DZ", type: "deeltijd" },
-          "2025-07-29": { code: "TW", type: "thuis" },
-          "2025-07-30": { code: "TW", type: "thuis" },
-        },
-      },
-      {
-        name: "Esmee van Leeuwen",
-        role: "Customer Care",
-        team: "Operations",
-        workdayHours: 7.5,
-        entries: {
-          "2024-11-04": { code: "Z", type: "ziek" },
-          "2024-11-05": { code: "Z", type: "ziek" },
-          "2025-03-21": { code: "TW", type: "thuis" },
-          "2025-07-11": { code: "Z", type: "ziek" },
-          "2025-07-12": { code: "Z", type: "ziek" },
-          "2025-07-13": { code: "Z", type: "ziek" },
-          "2025-07-18": { code: "TW", type: "thuis" },
-          "2025-07-31": { code: "L", type: "verlof", label: "Vrije middag", hours: 3.5 },
-        },
-      },
-      {
-        name: "Jamal Essers",
-        role: "Service Coördinator",
-        team: "Service Noord",
-        workdayHours: 8,
-        entries: {
-          "2024-12-26": { code: "FD", type: "feestdag" },
-          "2025-05-09": { code: "TW", type: "thuis" },
-          "2025-07-05": { code: "FD", type: "feestdag" },
-          "2025-07-06": { code: "FD", type: "feestdag" },
-          "2025-07-19": { code: "FD", type: "feestdag" },
-          "2025-07-20": { code: "FD", type: "feestdag" },
-          "2025-07-22": { code: "TW", type: "thuis" },
-          "2025-07-23": { code: "TW", type: "thuis" },
-        },
-      },
-      {
-        name: "Lotte Sanders",
-        role: "Planner",
-        team: "Warehouse",
-        workdayHours: 8,
-        entries: {
-          "2024-03-11": { code: "L", type: "verlof" },
-          "2024-05-01": { code: "FD", type: "feestdag" },
-          "2024-11-18": { code: "TW", type: "thuis" },
-          "2025-02-14": { code: "T", type: "training", label: "Lean training" },
-          "2025-05-06": { code: "V", type: "vakantie" },
-          "2025-05-07": { code: "V", type: "vakantie" },
-          "2025-07-01": { code: "L", type: "verlof" },
-          "2025-07-02": { code: "L", type: "verlof" },
-          "2025-07-18": { code: "T", type: "training", label: "Lean training" },
-          "2025-07-19": { code: "T", type: "training" },
-          "2025-07-30": { code: "V", type: "vakantie" },
-          "2025-07-31": { code: "V", type: "vakantie" },
-          "2025-10-21": { code: "Z", type: "ziek" },
-        },
-      },
-      {
-        name: "Robert Kiers",
-        role: "Planner West",
-        team: "Service West",
-        workdayHours: 8,
-        entries: {
-          "2024-01-15": { code: "TW", type: "thuis" },
-          "2024-01-16": { code: "TW", type: "thuis" },
-          "2024-07-22": { code: "V", type: "vakantie" },
-          "2024-07-23": { code: "V", type: "vakantie" },
-          "2025-07-08": { code: "TW", type: "thuis" },
-          "2025-07-09": { code: "TW", type: "thuis" },
-          "2025-07-10": { code: "TW", type: "thuis" },
-          "2025-07-11": { code: "TW", type: "thuis" },
-          "2025-07-24": { code: "V", type: "vakantie" },
-          "2025-07-25": { code: "V", type: "vakantie" },
-          "2025-07-26": { code: "V", type: "vakantie" },
-          "2025-11-04": { code: "S", type: "ziek" },
-        },
-      },
-    ],
-  },
-  currentLeaveYear: new Date().getUTCFullYear(),
-  leaveMatrixScrollYear: null,
-};
+import { ROLES, STORAGE_KEY } from "./constants.js";
+import { round1 } from "./utils/number.js";
 
-export const filteredTasksCache = {
-  signature: null,
-  value: [],
-};
-
-export const WEEKDAY_LABELS = ["zo", "ma", "di", "wo", "do", "vr", "za"];
-export const MONTH_LABELS = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
-export const LEAVE_TYPES = [
-  { value: "vakantie", label: "Vakantie", code: "V" },
-  { value: "verlof", label: "Verlof", code: "L" },
-  { value: "ziek", label: "Ziek", code: "Z" },
-  { value: "training", label: "Training", code: "T" },
-  { value: "thuis", label: "Thuiswerk", code: "TW" },
-  { value: "feestdag", label: "Feestdag", code: "FD" },
-  { value: "deeltijd", label: "Deeltijd", code: "DZ" },
-];
-export const DEFAULT_WORKDAY_HOURS = 8;
-export const NUMBER_FORMATTER = new Intl.NumberFormat("nl-NL");
-
-export function invalidateFilteredTasks() {
-  filteredTasksCache.signature = null;
-  filteredTasksCache.value = [];
+function generateIdValue() {
+  return Math.random().toString(36).slice(2, 9);
 }
 
-export function setFilteredTasksCache(signature, value) {
-  filteredTasksCache.signature = signature;
-  filteredTasksCache.value = value;
+function key(empId, dateStr) {
+  return `${empId}|${dateStr}`;
+}
+
+export function defaultState() {
+  return {
+    werkplaats: "Almere",
+    employees: [
+      { id: generateIdValue(), naam: "Alex", rol: "Technicus", werkplaats: "Almere", urenPerDag: 8 },
+      { id: generateIdValue(), naam: "Bianca", rol: "Teamleider", werkplaats: "Almere", urenPerDag: 8 },
+      { id: generateIdValue(), naam: "Chris", rol: "Meewerkend voorman", werkplaats: "Venlo", urenPerDag: 8 },
+      { id: generateIdValue(), naam: "Dana", rol: "Expeditie", werkplaats: "Zwijndrecht", urenPerDag: 8 },
+    ],
+    absences: {},
+  };
+}
+
+function save(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function load() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return defaultState();
+    }
+    const parsed = JSON.parse(stored);
+    return normalizeState(parsed);
+  } catch (error) {
+    return defaultState();
+  }
+}
+
+let state = load();
+
+export function getState() {
+  return state;
+}
+
+export function replaceState(nextState) {
+  state = normalizeState(nextState);
+  save(state);
+  return state;
+}
+
+export function resetState() {
+  state = defaultState();
+  save(state);
+  return state;
+}
+
+export function saveState() {
+  save(state);
+}
+
+export function setWerkplaats(werkplaats) {
+  state.werkplaats = werkplaats;
+  save(state);
+}
+
+export function employeesOf(werkplaats) {
+  return state.employees.filter((employee) => employee.werkplaats === werkplaats);
+}
+
+export function generateId() {
+  return generateIdValue();
+}
+
+export function addEmployee(employee) {
+  state.employees.push(employee);
+  save(state);
+}
+
+export function removeEmployee(employeeId) {
+  state.employees = state.employees.filter((employee) => employee.id !== employeeId);
+  save(state);
+}
+
+export function updateEmployee(employeeId, updates) {
+  const employee = state.employees.find((item) => item.id === employeeId);
+  if (!employee) {
+    return;
+  }
+  Object.assign(employee, updates);
+  save(state);
+}
+
+export function getAbsence(empId, dateStr) {
+  return state.absences[key(empId, dateStr)];
+}
+
+export function setAbsence(empId, dateStr, record) {
+  const baseHours = state.employees.find((employee) => employee.id === empId)?.urenPerDag || 8;
+  const nextRecord = { ...(getAbsence(empId, dateStr) || {}), ...(record || {}) };
+  if (typeof nextRecord.hours !== "number") {
+    nextRecord.hours = 0;
+  }
+  if (!nextRecord.reasons) {
+    nextRecord.reasons = {};
+  }
+  nextRecord.status = nextRecord.hours > 0 ? "afwezig" : "beschikbaar";
+
+  let total = 0;
+  Object.keys(nextRecord.reasons).forEach((reason) => {
+    const value = +nextRecord.reasons[reason] || 0;
+    if (value <= 0) {
+      delete nextRecord.reasons[reason];
+    } else {
+      nextRecord.reasons[reason] = value;
+      total += value;
+    }
+  });
+
+  if (total > nextRecord.hours && nextRecord.hours > 0) {
+    const factor = nextRecord.hours / (total || 1);
+    Object.keys(nextRecord.reasons).forEach((reason) => {
+      nextRecord.reasons[reason] = round1(nextRecord.reasons[reason] * factor);
+    });
+  }
+
+  if (nextRecord.hours > 0 || Object.keys(nextRecord.reasons).length) {
+    state.absences[key(empId, dateStr)] = nextRecord;
+  } else {
+    delete state.absences[key(empId, dateStr)];
+  }
+
+  save(state);
+  return baseHours;
+}
+
+export function clearAbsences() {
+  state.absences = {};
+  save(state);
+}
+
+export function exportState(pretty = true) {
+  return JSON.stringify(state, null, pretty ? 2 : 0);
+}
+
+export function importState(raw) {
+  const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+  replaceState(parsed);
+}
+
+function normalizeState(raw) {
+  const base = defaultState();
+  if (!raw || typeof raw !== "object") {
+    return base;
+  }
+  const normalized = {
+    werkplaats: typeof raw.werkplaats === "string" ? raw.werkplaats : base.werkplaats,
+    employees: Array.isArray(raw.employees) ? raw.employees.map(normalizeEmployee) : base.employees,
+    absences: raw.absences && typeof raw.absences === "object" ? { ...raw.absences } : {},
+  };
+  return normalized;
+}
+
+function normalizeEmployee(employee, index) {
+  if (!employee || typeof employee !== "object") {
+    return {
+      id: generateIdValue(),
+      naam: `Medewerker ${index + 1}`,
+      rol: Object.keys(ROLES)[0],
+      werkplaats: "Almere",
+      urenPerDag: 8,
+    };
+  }
+  return {
+    id: employee.id || generateIdValue(),
+    naam: employee.naam || `Medewerker ${index + 1}`,
+    rol: employee.rol || Object.keys(ROLES)[0],
+    werkplaats: employee.werkplaats || "Almere",
+    urenPerDag: typeof employee.urenPerDag === "number" ? employee.urenPerDag : 8,
+  };
 }

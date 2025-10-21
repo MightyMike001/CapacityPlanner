@@ -1,247 +1,165 @@
 <!DOCTYPE html>
-<html lang="nl" data-theme="dark">
+<html lang="nl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Motrac • Capacity Compass</title>
-  <meta name="color-scheme" content="dark light">
+  <title>Verlofplanning • Werkplaats</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* v2.2 — Dagklik menu voor uren + redenen; geen palet icoon; tests behouden */
+    :root{
+      --bg:#0b0c10;           /* donker voor OLED/ios-look */
+      --card:#151722;         /* kaart */
+      --card2:#0f1118;        /* sub */
+      --txt:#f5f7fb;          /* tekst licht */
+      --muted:#b7bdd1;        /* secundair */
+      --accent:#0a84ff;       /* iOS-blauw */
+      --accent-2:#30d158;     /* iOS-groen */
+      --warn:#ff9f0a;         /* oranje */
+      --danger:#ff453a;       /* rood */
+      --ok:#34c759;           /* groen */
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      /* reden-kleuren */
+      --r-verlof:#ff453a; --r-ziekte:#ff9f0a; --r-training:#ffd60a; --r-werktelders:#64d2ff; --r-afwezig:#a6a6a6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1200px 800px at 20% -10%, #121427 0%, #0a0b12 40%, var(--bg) 80%);
+      color:var(--txt); font-family:Inter,system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    .app{max-width:1100px; margin:0 auto; padding:16px 16px 84px}
+    header{
+      position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(12px);
+      background:linear-gradient(180deg, rgba(10,11,18,.9), rgba(10,11,18,.6));
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .topbar{display:flex; gap:12px; align-items:center; padding:14px 16px}
+    .title{font-weight:700; letter-spacing:.2px}
+    .grow{flex:1}
+    select, input[type="date"], input[type="text"], input[type="number"], textarea{
+      background:var(--card2); color:var(--txt); border:1px solid rgba(255,255,255,.08);
+      padding:10px 12px; border-radius:12px; outline:none; width:100%;
+    }
+    select:focus, input:focus, textarea:focus{border-color:rgba(10,132,255,.6); box-shadow:0 0 0 6px rgba(10,132,255,.08)}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center; padding:10px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    }
+    .tabs{display:flex; gap:8px; padding:10px 16px 14px}
+    .tab{cursor:pointer; user-select:none}
+    .tab[aria-selected="true"]{background:var(--accent); color:#fff; border-color:transparent}
+
+    .bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.1); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:14px; }
+
+    .grid{display:grid; gap:12px}
+    @media (min-width: 920px){
+      .grid.cols-2{grid-template-columns: 1.1fr .9fr}
+    }
+
+    .stack{display:flex; flex-direction:column; gap:12px}
+    .row{display:flex; gap:10px; align-items:center}
+    .row.wrap{flex-wrap:wrap}
+
+    .table{width:100%; border-collapse:separate; border-spacing:0 8px}
+    .table th{font-weight:600; color:var(--muted); text-align:left; font-size:.9rem; padding:0 8px}
+    .table td{background:var(--card2); border:1px solid rgba(255,255,255,.06); padding:8px; vertical-align:top}
+    .table td:first-child{border-radius:12px 0 0 12px}
+    .table td:last-child{border-radius:0 12px 12px 0}
+
+    .btn{appearance:none; border:0; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600}
+    .btn.primary{background:var(--accent); color:#fff}
+    .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.12); color:var(--txt)}
+    .btn.warn{background:var(--warn); color:#1c1303}
+    .btn.danger{background:var(--danger); color:white}
+
+    .legend{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{border-radius:999px; padding:6px 10px; border:1px solid rgba(255,255,255,.12); font-size:.9rem}
+
+    .mini{font-size:.88rem; color:var(--muted)}
+
+    .rowbar{display:grid; grid-template-columns: 220px repeat(5, 1fr) 120px; gap:8px; align-items:center}
+    @media (max-width: 740px){
+      .rowbar{grid-template-columns: 150px 1fr;}
+      .rowbar .days{grid-column: 1 / -1; display:grid; grid-template-columns: repeat(5, 1fr); gap:8px}
+      .rowbar .weekly{grid-column: 1 / -1}
+    }
+
+    .daycell{background:var(--card2); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px; cursor:pointer}
+    .daycell:hover{outline:1px solid rgba(255,255,255,.15)}
+    .daycell .top{display:flex; justify-content:space-between; align-items:center}
+
+    /* afwezigheidsbalk */
+    .absbar{position:relative; height:8px; background:#0c0e14; border:1px solid rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
+    .segm{height:100%; display:inline-block}
+
+    dialog{border:1px solid rgba(255,255,255,.15); background:var(--card); color:var(--txt); border-radius:16px; padding:16px 16px 12px; width:min(680px, 92vw)}
+    dialog::backdrop{background:rgba(0,0,0,.6)}
+
+    .footerbar{position:fixed; bottom:0; left:0; right:0; padding:8px 12px; display:flex; gap:10px; justify-content:center; align-items:center; backdrop-filter: blur(12px) saturate(160%);
+      background:linear-gradient(180deg, rgba(10,11,18,.3), rgba(10,11,18,.7)); border-top:1px solid rgba(255,255,255,.08)}
+
+    .hidden{display:none !important}
+    .center{display:flex; justify-content:center; align-items:center}
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar" role="banner">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">MT</div>
-        <div class="brand-text">
-          <span class="brand-title">Capacity Compass</span>
-          <span class="brand-sub">Realtime planning cockpit</span>
-        </div>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn ghost icon" id="btn-theme" type="button" aria-label="Schakel naar licht thema">
-          <span class="icon" aria-hidden="true">🌙</span>
-          <span class="label">Licht thema</span>
-        </button>
-        <button class="btn secondary" onclick="openModal('about')">Over</button>
-        <button class="btn" onclick="openDrawer()">Nieuwe taak</button>
-      </div>
-    </header>
-
-    <main class="app-main" role="main">
-      <section class="hero-panels" aria-label="Snelle acties en highlights">
-        <article class="card hero-card">
-          <div class="hero-header">
-            <span class="eyebrow">Dashboard</span>
-            <h1>Capaciteitsplanner</h1>
-            <p>Een kalm overzicht van capaciteit, werkdruk en verlof voor al je vestigingen.</p>
-          </div>
-          <div class="hero-actions">
-            <button class="btn" onclick="setTab('board')">Open planbord</button>
-            <button class="btn secondary" onclick="setTab('table')">Bekijk tabel</button>
-            <button class="btn ghost" onclick="setTab('insights')">Analyseer trends</button>
-          </div>
-        </article>
-        <article class="card hero-card hero-stats">
-          <h2>Datakwaliteit</h2>
-          <p class="sub">Snelle controles op openstaande taken.</p>
-          <dl class="metric-grid">
-            <div>
-              <dt>Datakwaliteit</dt>
-              <dd id="kpi-ok">–</dd>
-            </div>
-            <div>
-              <dt>SLA's risicovol</dt>
-              <dd id="kpi-sla">–</dd>
-            </div>
-            <div>
-              <dt>Open taken</dt>
-              <dd id="kpi-open">–</dd>
-            </div>
-            <div>
-              <dt>Te laat</dt>
-              <dd id="kpi-late">–</dd>
-            </div>
-          </dl>
-          <div class="hero-actions compact">
-            <button class="btn small" onclick="toast('Auto-planning (demo) klaar')">Auto-planning</button>
-            <button class="btn small secondary" onclick="toast('Geëxporteerd')">Export CSV</button>
-          </div>
-        </article>
-        <article class="card hero-card capacity-card">
-          <h2>Capaciteitsmomentopname</h2>
-          <p class="sub">Realtime berekening op basis van filters.</p>
-          <div class="kpi-grid">
-            <div class="kpi"><span class="value" id="kpi-cap">–</span><span class="label">Beschikbare uren</span></div>
-            <div class="kpi"><span class="value" id="kpi-load">–</span><span class="label">Ingepland</span></div>
-            <div class="kpi"><span class="value" id="kpi-util">–</span><span class="label">Benutting</span></div>
-            <div class="kpi"><span class="value" id="kpi-backlog">–</span><span class="label">Backlog</span></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="filters card" aria-labelledby="filters-title">
-        <div class="filters-header">
-          <h2 id="filters-title">Filters</h2>
-          <div class="filter-actions">
-            <button class="btn small ghost" id="btn-reset">Reset</button>
-            <button class="btn small" id="btn-export">Export</button>
-            <button class="btn small secondary" id="btn-import">Import</button>
-          </div>
-        </div>
-        <div class="filters-grid">
-          <label>Vestiging
-            <select id="f-workshop"></select>
-          </label>
-          <label>Week (maandag)
-            <input type="date" id="f-week">
-          </label>
-          <label>Jaar (verlofmatrix)
-            <select id="f-year"></select>
-          </label>
-          <label>Skill
-            <input type="text" id="f-skill" placeholder="bv. 386, 1252, Diagnose">
-          </label>
-        </div>
-        <div class="chip-bar" id="chips" aria-live="polite"></div>
-        <p class="filters-hint">Importeer JSON takenbestanden of maak snel nieuwe taken via het paneel "Nieuwe taak".</p>
-        <input id="file" type="file" accept=".json,.csv,.xlsx" hidden />
-      </section>
-
-      <section class="leave card" aria-labelledby="leave-title">
-        <div class="leave-header">
-          <div>
-            <h2 id="leave-title">Verlofmatrix</h2>
-            <p>Overzicht van ingevoerde afwezigheid per collega. Pas uren aan in de cellen en kies een reden.</p>
-          </div>
-          <div class="legend" aria-hidden="true">
-            <span><span class="legend-swatch leave-swatch--vakantie"></span>Vakantie</span>
-            <span><span class="legend-swatch leave-swatch--verlof"></span>Verlof</span>
-            <span><span class="legend-swatch leave-swatch--ziek"></span>Ziek</span>
-            <span><span class="legend-swatch leave-swatch--training"></span>Training</span>
-            <span><span class="legend-swatch leave-swatch--thuis"></span>Thuiswerk</span>
-            <span><span class="legend-swatch leave-swatch--feestdag"></span>Feestdag</span>
-            <span><span class="legend-swatch leave-swatch--deeltijd"></span>Deeltijd</span>
-          </div>
-        </div>
-        <div class="leave-matrix-wrap">
-          <div id="leave-matrix" role="group" aria-describedby="leave-caption"></div>
-        </div>
-        <p id="leave-caption" class="leave-caption">Lege cellen betekenen volledige beschikbaarheid. Vul het aantal afwezige uren in en kies een reden.</p>
-      </section>
-
-      <section class="planning card" aria-label="Planning weergaven">
-        <div class="tablist" role="tablist">
-          <button type="button" id="tab-board" class="tab active" role="tab" aria-selected="true" aria-controls="view-board" data-tab="board" onclick="setTab('board')">Board</button>
-          <button type="button" id="tab-table" class="tab" role="tab" aria-selected="false" aria-controls="view-table" data-tab="table" onclick="setTab('table')">Tabel</button>
-          <button type="button" id="tab-insights" class="tab" role="tab" aria-selected="false" aria-controls="view-insights" data-tab="insights" onclick="setTab('insights')">Insights</button>
-        </div>
-        <section id="view-board" role="tabpanel" aria-labelledby="tab-board">
-          <div class="board-grid" id="board-grid"></div>
-        </section>
-        <section id="view-table" role="tabpanel" aria-labelledby="tab-table" hidden>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th>Taak</th>
-                  <th>Vestiging</th>
-                  <th>Skill</th>
-                  <th>Uren</th>
-                  <th>Deadline</th>
-                  <th>Prioriteit</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
-          </div>
-        </section>
-        <section id="view-insights" role="tabpanel" aria-labelledby="tab-insights" hidden>
-          <div class="insights-grid">
-            <article class="card inset">
-              <div class="card-top">
-                <span class="badge">Weekbalans</span>
-                <span class="badge hours">320h cap</span>
-              </div>
-              <h3>Capaciteit vs. Werkdruk</h3>
-              <p class="sub">Snelle indicatie per vestiging/week. Kleur op basis van overschrijding.</p>
-              <div class="capacity-chart" id="capacity-chart">
-                <div class="capacity-chart__empty">Grafiek wordt geladen…</div>
-              </div>
-              <div class="capacity-chart__legend" aria-hidden="true">
-                <span class="legend-dot legend-dot--capacity"></span> Capaciteit
-                <span class="legend-dot legend-dot--workload"></span> Werkaanbod
-              </div>
-            </article>
-            <article class="card inset">
-              <div class="card-top">
-                <span class="badge">SLA's</span>
-              </div>
-              <h3>Naderende deadlines</h3>
-              <p class="sub">Taken binnen 72 uur met norm &gt; 8 uur.</p>
-              <div class="row">
-                <span class="badge skill">Diagnose</span>
-                <button class="btn small secondary">Open lijst</button>
-              </div>
-            </article>
-          </div>
-        </section>
-      </section>
-    </main>
-  </div>
-
-  <aside class="drawer" id="drawer" aria-hidden="true">
-    <header>
-      <h3>Nieuwe taak</h3>
-      <button class="btn small secondary" onclick="closeDrawer()">Sluiten</button>
-    </header>
-    <div class="form-grid">
-      <label>Titel<input id="t-title" placeholder="bv. Groene Stroom 386-setup"></label>
-      <label>Vestiging
-        <select id="t-ws"></select>
-      </label>
-      <label>Skill<input id="t-skill" placeholder="bv. 386, 1252, Diagnose"></label>
-      <label>Uren<input id="t-hours" type="number" min="1" step="1" value="8"></label>
-      <label>Deadline<input id="t-due" type="date"></label>
-      <label>Prioriteit
-        <select id="t-prio">
-          <option>Normaal</option>
-          <option>Hoog</option>
-          <option>Laag</option>
-        </select>
-      </label>
-      <label style="grid-column:1/-1">Status
-        <select id="t-status">
-          <option>Open</option>
-          <option>In uitvoering</option>
-          <option>Gereed</option>
-          <option>Geblokkeerd</option>
-        </select>
-      </label>
+  <header>
+    <div class="topbar">
+      <div class="title">Verlofplanning • Werkplaats</div>
+      <div class="grow"></div>
+      <select id="werkplaatsSelect" title="Werkplaats kiezen">
+        <option>Almere</option>
+        <option>Venlo</option>
+        <option>Zwijndrecht</option>
+      </select>
+      <nav class="tabs">
+        <button class="pill tab" data-route="#planning" aria-selected="true">Planning</button>
+        <button class="pill tab" data-route="#team">Team</button>
+        <button class="pill tab" data-route="#rapport">Rapport</button>
+      </nav>
     </div>
-    <div class="actions">
-      <button class="btn" onclick="saveTask()">Opslaan</button>
-      <button class="btn secondary" onclick="clearTask()">Leegmaken</button>
-    </div>
-  </aside>
+  </header>
 
-  <div class="modal" id="modal-about" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true" hidden onclick="if(event.target===this) closeModal('about')">
-    <div class="modal-box">
-      <h3 id="about-title">Over deze cockpit</h3>
-      <p>High-design dashboard met focus op rust, overzicht en snelle acties voor planners.</p>
-      <div class="modal-actions">
-        <button class="btn small" onclick="closeModal('about')">Prima</button>
-        <button class="btn small secondary" onclick="toast('Documentatie geopend')">Documentatie</button>
-      </div>
+  <main class="app stack" id="app" data-testid="app-root"></main>
+
+  <div class="footerbar">
+    <div class="legend">
+      <span class="chip"><span class="segm" style="background:var(--r-verlof); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Verlof</span>
+      <span class="chip"><span class="segm" style="background:var(--r-ziekte); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Ziekte</span>
+      <span class="chip"><span class="segm" style="background:var(--r-training); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Training</span>
+      <span class="chip"><span class="segm" style="background:var(--r-werktelders); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Werkt elders</span>
+      <span class="chip"><span class="segm" style="background:var(--r-afwezig); width:12px; height:12px; border-radius:3px; display:inline-block"></span> Overig</span>
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="assertive">Gereed</div>
+  <!-- Dag-menu: uren + redenen -->
+  <dialog id="dayMenu">
+    <form method="dialog" class="stack">
+      <h3 id="dayTitle" style="margin:0 0 6px">Dag aanpassen</h3>
+      <div class="row wrap">
+        <div>
+          <label class="mini">Afwezig (uren)</label>
+          <input id="dayHours" type="number" min="0" step="0.5" value="0" style="max-width:120px">
+        </div>
+        <div class="mini" id="dayPresence" style="align-self:flex-end">Aanwezig: 0 u</div>
+      </div>
+      <div id="reasonsList" class="stack"></div>
+      <menu class="row" style="justify-content:flex-end">
+        <button class="btn ghost" value="cancel">Annuleren</button>
+        <button class="btn primary" value="ok">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
 
-  <script type="module" src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>
